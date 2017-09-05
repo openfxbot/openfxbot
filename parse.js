@@ -26,7 +26,7 @@ var results = {
 			total: 0
 		}
 	},
-	eurjpy: {
+	usdchf: {
 		hold: {
 			chance: 0.0,
 			odds: 0.0,
@@ -120,7 +120,7 @@ parser.on('error', function(err){
 });
 // When we are done, test that the parsed output matched what expected
 parser.on('finish', function(){
-	var currencies = ['eurusd', 'eurjpy', 'usdjpy','gbpusd', 'audusd'];
+	var currencies = ['eurusd', 'usdchf', 'usdjpy','gbpusd', 'audusd'];
 	var positions = ['hold', 'long', 'short'];
 	var currency, position;
 	var chance = 0.0;
