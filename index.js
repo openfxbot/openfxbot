@@ -172,8 +172,8 @@ function getRandom(min, max) {
 
 var initArgs;
 var minStates = nconf.get('min-states') || 1.0;
-var minSensitivity = nconf.get('min-sensitivity') || 1.0;
-var maxSensitivity = nconf.get('max-sensitivity') || 20.0;
+var minSensitivity = parseFloat(nconf.get('min-sensitivity') || 10.0);
+var maxSensitivity = parseFloat(nconf.get('max-sensitivity') || 20.0);
 var minAlpha = nconf.get('min-alpha') || 0.0;
 var maxAlpha = nconf.get('max-alpha') || 0.1;
 var minGamma = nconf.get('min-gamma') || 0.0;
