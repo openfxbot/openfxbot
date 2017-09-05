@@ -53,7 +53,7 @@ var iterate = function(args){
 			var pivotPoint = (priceHigh + priceLow + priceClose) / 3.0;
 			var percentOpen = (priceClose / pivotPoint) - 1.0;
 
-			var modifiedCandle = [percentChange * 100.0, percentOpen * 100.0 , percentHigh * 100.0, percentLow * 100.0];
+			var modifiedCandle = [percentChange * 25.0, percentOpen * 25.0 , percentHigh * 25.0, percentLow * 25.0];
 
 			return modifiedCandle;
 		})
