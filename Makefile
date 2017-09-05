@@ -21,6 +21,14 @@ report:
 	ls neurons | awk '{print "node report.js --currency=eurjpy --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	./tmp.sh | sort | tee -a report.csv
+	git checkout origin/gbpusd
+	ls neurons | awk '{print "node report.js --currency=gbpusd --config-file=" $$1}' > ./tmp.sh
+	chmod a+x ./tmp.sh
+	./tmp.sh | sort | tee -a report.csv
+	git checkout origin/audusd
+	ls neurons | awk '{print "node report.js --currency=audusd --config-file=" $$1}' > ./tmp.sh
+	chmod a+x ./tmp.sh
+	./tmp.sh | sort | tee -a report.csv
 	git checkout master
 	node parse.js
 
@@ -34,11 +42,17 @@ merge:
 	git checkout usdjpy
 	git pull
 	git merge master
+	git checkout gbpusd
+	git pull
+	git merge master
+	git checkout audusd
+	git pull
+	git merge master
 	git checkout master
 	make push
 
 push:
-	git push origin eurusd:eurusd && git push origin eurjpy:eurjpy && git push origin usdjpy:usdjpy
+	git push origin eurusd:eurusd && git push origin eurjpy:eurjpy && git push origin usdjpy:usdjpy && git push origin gbpusd:gbpusd && git push origin audusd:audusd
 
 backtest:
 	echo 'TBD'

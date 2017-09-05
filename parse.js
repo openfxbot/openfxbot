@@ -59,6 +59,40 @@ var results = {
 			odds: 0.0,
 			total: 0
 		}
+	},
+	gbpusd: {
+		hold: {
+			chance: 0.0,
+			odds: 0.0,
+			total: 0
+		},
+		long: {
+			chance: 0.0,
+			odds: 0.0,
+			total: 0
+		},
+		short: {
+			chance: 0.0,
+			odds: 0.0,
+			total: 0
+		}
+	},
+	audusd: {
+		hold: {
+			chance: 0.0,
+			odds: 0.0,
+			total: 0
+		},
+		long: {
+			chance: 0.0,
+			odds: 0.0,
+			total: 0
+		},
+		short: {
+			chance: 0.0,
+			odds: 0.0,
+			total: 0
+		}
 	}
 };
 
@@ -86,7 +120,7 @@ parser.on('error', function(err){
 });
 // When we are done, test that the parsed output matched what expected
 parser.on('finish', function(){
-	var currencies = ['eurusd', 'eurjpy', 'usdjpy'];
+	var currencies = ['eurusd', 'eurjpy', 'usdjpy','gbpusd', 'audusd'];
 	var positions = ['hold', 'long', 'short'];
 	var currency, position;
 	var chance = 0.0;
