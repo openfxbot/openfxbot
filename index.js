@@ -53,7 +53,12 @@ var iterate = function(args){
 			var pivotPoint = (priceHigh + priceLow + priceClose) / 3.0;
 			var percentOpen = (priceClose / pivotPoint) - 1.0;
 
-			var modifiedCandle = [percentChange * 20.0, percentOpen * 20.0 , percentHigh * 20.0, percentLow * 20.0];
+			var modifiedCandle = [
+				percentChange * args.sensitivity,
+				percentOpen * args.sensitivity,
+				percentHigh * args.sensitivity,
+				percentLow * args.sensitivity
+			];
 
 			return modifiedCandle;
 		})
@@ -167,6 +172,8 @@ function getRandom(min, max) {
 
 var initArgs;
 var minStates = nconf.get('min-states') || 1.0;
+var minSensitivity = nconf.get('min-sensitivity') || 1.0;
+var maxSensitivity = nconf.get('max-sensitivity') || 20.0;
 var minAlpha = nconf.get('min-alpha') || 0.0;
 var maxAlpha = nconf.get('max-alpha') || 0.1;
 var minGamma = nconf.get('min-gamma') || 0.0;
@@ -179,6 +186,7 @@ try {
 } catch(e) {
 	initArgs = {
 		numStates: Math.floor(getRandom(minStates, 53)),
+		sensitivity: getRandom(minSensitivity, maxSensitivity),
 		alpha: getRandom(minAlpha, maxAlpha),
 		gamma: getRandom(minGamma, maxGamma),
 		epsilon: getRandom(minEpsilon, maxEpsilon),
