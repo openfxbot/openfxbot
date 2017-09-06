@@ -129,6 +129,10 @@ var iterate = function(args){
 			var cycles = args.cycles;
 			args.cycles = cycles + 1;
 
+			var q = (1.0 - (wealth / testTotalReward));
+			var b = q / testTotalReward;
+			var meetsCriterion = (b > (decisions.reward.ratio - 1.0));
+
 			var row = [
 				[
 					outputFile,
@@ -141,14 +145,19 @@ var iterate = function(args){
 			];
 			stringify(row, function(err, formattedRow) {
 				if(wealth > args.max.wealth) {
-					process.stdout.write(formattedRow);
-					args.max = {
-						cycles: cycles,
-						wealth: wealth,
-						percentSuccess: percentSuccess / 100.0,
-						odds: decisions.reward.ratio,
-						weights: weights
-					};
+					if(!args.max.meetsCriterion || meetsCriterion) {
+						process.stdout.write(formattedRow);
+						args.max = {
+							meetsCriterion: meetsCriterion,
+							cycles: cycles,
+							wealth: wealth,
+							percentSuccess: percentSuccess / 100.0,
+							odds: decisions.reward.ratio,
+							weights: weights
+						};
+					} else {
+						process.stderr.write(formattedRow);
+					}
 				} else {
 					process.stderr.write(formattedRow);
 				}
@@ -187,6 +196,7 @@ try {
 	initArgs = {
 		numStates: Math.floor(getRandom(minStates, 53)),
 		sensitivity: getRandom(minSensitivity, maxSensitivity),
+		meetsCriterion: false,
 		alpha: getRandom(minAlpha, maxAlpha),
 		gamma: getRandom(minGamma, maxGamma),
 		epsilon: getRandom(minEpsilon, maxEpsilon),
