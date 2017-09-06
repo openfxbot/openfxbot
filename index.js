@@ -15,7 +15,7 @@ var data = require(nconf.get('data') || './data.js');
 var dataSize = data.length;
 var testSize = parseInt(nconf.get('test-size') || 52);
 
-var outputFile = nconf.get('output-file') || moment().format('YYYY-WW-hh');
+var outputFile = nconf.get('output-file') || moment().format('YYYY-DDD-hh');
 var filePath = './neurons/' + outputFile + '.json';
 
 var marr = (parseFloat(nconf.get('marr')) || 0.03) / 52.0; // minimum annual rate of return / 52wks
