@@ -119,15 +119,18 @@ var iterate = function(args){
 				}
 			}
 			
+			var tmpAlpha = agent.epsilon;
 			var tmpEpsilon = agent.epsilon;
 			acc.candles.push(modifiedCandle);
 			if(acc.candles.length > numStates) {
 				acc.candles.shift();
 
 				if(index >= lastTestIndex) {
+					agent.alpha = 0.0;
 					agent.epsilon = 0.0;
 				}
 				acc.previousAction = agent.act(_.flatten(acc.candles));
+				agent.alpha = tmpAlpha;
 				agent.epsilon = tmpEpsilon;
 			}
 
@@ -143,7 +146,8 @@ var iterate = function(args){
 
 			var q = (1.0 - (wealth / testTotalReward));
 			var b = q / testTotalReward;
-			var meetsCriterion = (b > (decisions.reward.ratio - 1.0));
+			var odds = Math.min(decisions.reward.ratio, decisions.reward.odds);
+			var meetsCriterion = (b > (odds - 1.0));
 
 			var row = [
 				[
@@ -164,7 +168,7 @@ var iterate = function(args){
 							cycles: cycles,
 							wealth: wealth,
 							percentSuccess: percentSuccess / 100.0,
-							odds: decisions.reward.odds,
+							odds: odds,
 							weights: weights
 						};
 					} else {
