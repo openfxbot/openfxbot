@@ -111,7 +111,7 @@ var iterate = function(args){
 						decisions.reward.ratio = Math.abs(decisions.reward.max / decisions.reward.min);
 					}
 					if(decisions.reward.wrong < 0.0) {
-						decisions.reward.odds = decisions.reward.correct / decisions.reward.wrong;
+						decisions.reward.odds = Math.abs(decisions.reward.correct / decisions.reward.wrong);
 					}
 
 					wealth += reward;
