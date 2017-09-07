@@ -39,7 +39,11 @@ var iterate = function(args){
 	var wealth = 0.0;
 	var index = 0;
 	var testTotalReward = 0.0;
-	var decisions = {long: 0, short: 0, hold: 0, correct: 0, wrong: 0, reward: {min: 0.0, max: 0.0}};
+	var decisions = {
+		long: 0, short: 0, hold: 0, correct: 0, wrong: 0, reward: {
+			min: 0.0, max: 0.0, wrong: 0.0, correct: 0.0
+		}
+	};
 
 	stream
 		.map(function(ohlcCandle) {
@@ -98,8 +102,13 @@ var iterate = function(args){
 
 					decisions.reward.min = Math.min(decisions.reward.min, reward);
 					decisions.reward.max = Math.max(decisions.reward.max, reward);
+					decisions.reward.wrong = decisions.reward.wrong + reward;
+					decisions.reward.correct = decisions.reward.correct + reward;
 					if(decisions.reward.min < 0.0) {
 						decisions.reward.ratio = Math.abs(decisions.reward.max / decisions.reward.min);
+					}
+					if(decisions.reward.wrong > 0.0) {
+						decisions.reward.odds = decisions.reward.correct / decisions.reward.wrong;
 					}
 
 					wealth += reward;
@@ -152,7 +161,7 @@ var iterate = function(args){
 							cycles: cycles,
 							wealth: wealth,
 							percentSuccess: percentSuccess / 100.0,
-							odds: decisions.reward.ratio,
+							odds: decisions.reward.odds,
 							weights: weights
 						};
 					} else {
