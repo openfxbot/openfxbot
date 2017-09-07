@@ -110,7 +110,7 @@ var iterate = function(args){
 					if(decisions.reward.min < 0.0) {
 						decisions.reward.ratio = Math.abs(decisions.reward.max / decisions.reward.min);
 					}
-					if(decisions.reward.wrong > 0.0) {
+					if(decisions.reward.wrong < 0.0) {
 						decisions.reward.odds = decisions.reward.correct / decisions.reward.wrong;
 					}
 
