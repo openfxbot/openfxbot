@@ -117,13 +117,22 @@ parser.on('readable', function(){
 				odds = 1.0;
 			} else {
 				if(losingChance > (odds - 1.0)) {
-					odds = 1.0;
 					chance = (1.0 - chance) * 0.5; // TODO double check if this holds
-					position = 'hold';
+					odds = 1.0 / odds;
+
+					position = (position === 'long')
+						? 'short'
+						: 'long';
+
+					results[currency]['hold']['chance'] = (results[currency]['hold']['chance'] || 0.0) + chance;
+					results[currency]['hold']['odds'] = Math.max(results[currency]['hold']['odds'] || 0.0, 1.0);
+
+					results[currency]['hold']['total'] = (results[currency]['hold']['total'] || 0) + 1.0;
 				}
 			}
+
 			results[currency][position]['chance'] = (results[currency][position]['chance'] || 0.0) + chance;
-			results[currency][position]['odds'] = (results[currency][position]['odds'] || 0.0) + odds;
+			results[currency][position]['odds'] = Math.max(results[currency][position]['odds'] || 0.0, odds);
 		
 			results[currency][position]['total'] = (results[currency][position]['total'] || 0) + 1.0;
 		}
@@ -152,7 +161,7 @@ parser.on('finish', function(){
 
 			if(results[currency][position]['total']) {
 				chance = results[currency][position]['chance'] / results[currency][position]['total'];
-				odds = results[currency][position]['odds'] / results[currency][position]['total'];
+				odds = results[currency][position]['odds'];
 
 				console.log(position, ':', (chance * 100.0) + '%', (odds - 1.0) + ':1');
 			}
