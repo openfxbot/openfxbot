@@ -102,8 +102,11 @@ var iterate = function(args){
 
 					decisions.reward.min = Math.min(decisions.reward.min, reward);
 					decisions.reward.max = Math.max(decisions.reward.max, reward);
-					decisions.reward.wrong = decisions.reward.wrong + reward;
-					decisions.reward.correct = decisions.reward.correct + reward;
+					if(reward < 0 ) {
+						decisions.reward.wrong = decisions.reward.wrong + reward;
+					} else {
+						decisions.reward.correct = decisions.reward.correct + reward;
+					}
 					if(decisions.reward.min < 0.0) {
 						decisions.reward.ratio = Math.abs(decisions.reward.max / decisions.reward.min);
 					}
