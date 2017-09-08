@@ -116,7 +116,7 @@ parser.on('readable', function(){
 			if(position === 'hold') {
 				odds = 1.0;
 			} else {
-				if(!meetsCriterion) {
+				if(!meetsCriterion && odds < 1.0) {
 					chance = (1.0 - chance) * 0.5; // TODO double check if this holds
 					odds = 1.0 / odds;
 
