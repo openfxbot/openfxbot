@@ -61,6 +61,7 @@ function report(args){
 			var action;
 			var percentSuccess;
 			var odds;
+			var meetsCriterion;
 
 			acc.candles.push(modifiedCandle);
 			if(acc.candles.length > numStates) {
@@ -82,7 +83,11 @@ function report(args){
 						? args.max.odds
 						: 0.0;
 
-					stringify([[currency, position, percentSuccess, odds, configFile]], function(err, formattedRow) {
+					meetsCriterion = args && args.max && args.max.meetsCriterion
+						? 'true'
+						: 'false';
+
+					stringify([[currency, position, percentSuccess, odds, meetsCriterion, configFile]], function(err, formattedRow) {
 						process.stdout.write(formattedRow);
 					});
 				}

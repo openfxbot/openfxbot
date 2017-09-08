@@ -7,7 +7,7 @@ neuron:
 	git commit -a -m 'test: new neuron'
 
 report:
-	echo '"Currency","Position","Probability","Odds","File"' > report.csv
+	echo '"Currency","Position","Probability","Odds","Meets Criterion","File"' > report.csv
 	git fetch origin
 	git checkout origin/eurusd
 	ls neurons | awk '{print "node report.js --currency=eurusd --config-file=" $$1}' > ./tmp.sh
