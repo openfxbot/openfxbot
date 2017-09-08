@@ -144,10 +144,11 @@ var iterate = function(args){
 			var cycles = args.cycles;
 			args.cycles = cycles + 1;
 
+			var odds = (decisions.reward.ratio + decisions.reward.odds) / 2.0
+			var b = odds - 1.0;
+			var p = wealth / testTotalReward;
 			var q = (1.0 - (wealth / testTotalReward));
-			var b = q / testTotalReward;
-			var odds = Math.min(decisions.reward.ratio, decisions.reward.odds);
-			var meetsCriterion = (b > (odds - 1.0));
+			var meetsCriterion = (((b * p) - q) / b) > 0.0;
 
 			var row = [
 				[
@@ -212,12 +213,12 @@ try {
 	initArgs = {
 		numStates: Math.floor(getRandom(minStates, 53)),
 		sensitivity: getRandom(minSensitivity, maxSensitivity),
-		meetsCriterion: false,
 		alpha: getRandom(minAlpha, maxAlpha),
 		gamma: getRandom(minGamma, maxGamma),
 		epsilon: getRandom(minEpsilon, maxEpsilon),
 		cycles: 0,
 		max: {
+			meetsCriterion: false,
 			wealth: 0.0
 		}
 	}
