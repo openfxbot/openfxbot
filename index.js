@@ -147,8 +147,8 @@ var iterate = function(args){
 			var odds = (decisions.reward.ratio + decisions.reward.odds) / 2.0
 			var b = odds - 1.0;
 			var p = wealth / testTotalReward;
-			var q = (1.0 - (wealth / testTotalReward));
-			var meetsCriterion = (((b * p) - q) / b) > 0.0;
+			var q = (1.0 - p);
+			var meetsCriterion = (b > q / p);
 
 			var row = [
 				[
