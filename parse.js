@@ -113,22 +113,10 @@ parser.on('readable', function(){
 		meetsCriterion = record[4] === 'true';
 
 		if(chance > 0.0 && odds > 0.0) {
-			if(position === 'hold') {
-				odds = 1.0;
-			} else {
-				if(!meetsCriterion && odds < 1.0) {
-					chance = (1.0 - chance) * 0.5; // TODO double check if this holds
-					odds = 1.0 / odds;
-
-					position = (position === 'long')
-						? 'short'
-						: 'long';
-
-					results[currency]['hold']['chance'] = (results[currency]['hold']['chance'] || 0.0) + chance;
-					results[currency]['hold']['odds'] = Math.max(results[currency]['hold']['odds'] || 0.0, 1.0);
-
-					results[currency]['hold']['total'] = (results[currency]['hold']['total'] || 0) + 1.0;
-				}
+			if(!meetsCriterion) {
+				chance = (1.0 - chance) * 0.5; // TODO double check if this holds
+				odds = 1.0 / odds;
+				position = 'hold';
 			}
 
 			results[currency][position]['chance'] = (results[currency][position]['chance'] || 0.0) + chance;
@@ -149,6 +137,7 @@ parser.on('finish', function(){
 	var currency, position;
 	var chance = 0.0;
 	var odds = 0.0;
+	var wager;
 
 	console.log('results:', JSON.stringify(results, null, '\t'));
 
@@ -161,9 +150,10 @@ parser.on('finish', function(){
 
 			if(results[currency][position]['total']) {
 				chance = results[currency][position]['chance'] / results[currency][position]['total'];
-				odds = results[currency][position]['odds'];
+				odds = results[currency][position]['odds'] - 1.0;
 
-				console.log(position, ':', (chance * 100.0) + '%', (odds - 1.0) + ':1');
+				wager = chance - ((1.0 - chance) / odds);
+				console.log(position, ':', (wager * 100.0) + '%', (chance * 100.0) + '%', odds + ':1');
 			}
 		}
 	}
