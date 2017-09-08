@@ -101,22 +101,22 @@ parser.on('readable', function(){
 	var cursor;
 	var record;
 	var chance;
-	var losingChance;
 	var odds;
+	var meetsCriterion;
 	var currency;
 	var position;
   while(record = parser.read()){
 	  currency = record[0];
 	  position = record[1];
 		chance = parseFloat(record[2]) || 0.0;
-	  losingChance = (1.0 - chance) / chance;
 		odds = parseFloat(record[3]) || 0.0;
+		meetsCriterion = record[4] === 'true';
 
 		if(chance > 0.0 && odds > 0.0) {
 			if(position === 'hold') {
 				odds = 1.0;
 			} else {
-				if(losingChance > (odds - 1.0)) {
+				if(!meetsCriterion) {
 					chance = (1.0 - chance) * 0.5; // TODO double check if this holds
 					odds = 1.0 / odds;
 
