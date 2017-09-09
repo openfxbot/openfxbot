@@ -56,3 +56,28 @@ push:
 
 backtest:
 	echo 'TBD'
+
+report-local:
+	echo '"Currency","Position","Probability","Odds","Meets Criterion","File"' > report.csv
+	git checkout eurusd
+	ls neurons | awk '{print "node report.js --currency=eurusd --config-file=" $$1}' > ./tmp.sh
+	chmod a+x ./tmp.sh
+	./tmp.sh | sort | tee -a report.csv
+	git checkout usdjpy
+	ls neurons | awk '{print "node report.js --currency=usdjpy --config-file=" $$1}' > ./tmp.sh
+	chmod a+x ./tmp.sh
+	./tmp.sh | sort | tee -a report.csv
+	git checkout usdchf
+	ls neurons | awk '{print "node report.js --currency=usdchf --config-file=" $$1}' > ./tmp.sh
+	chmod a+x ./tmp.sh
+	./tmp.sh | sort | tee -a report.csv
+	git checkout gbpusd
+	ls neurons | awk '{print "node report.js --currency=gbpusd --config-file=" $$1}' > ./tmp.sh
+	chmod a+x ./tmp.sh
+	./tmp.sh | sort | tee -a report.csv
+	git checkout audusd
+	ls neurons | awk '{print "node report.js --currency=audusd --config-file=" $$1}' > ./tmp.sh
+	chmod a+x ./tmp.sh
+	./tmp.sh | sort | tee -a report.csv
+	git checkout master
+	node parse.js
