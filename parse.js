@@ -151,6 +151,7 @@ parser.on('finish', function(){
 	var chance = 0.0;
 	var odds = 0.0;
 	var wager;
+	var pips;
 
 	console.log('results:', JSON.stringify(results, null, '\t'));
 
@@ -167,7 +168,13 @@ parser.on('finish', function(){
 
 				if(odds > 0.0) {
 					wager = chance - ((1.0 - chance) / odds);
-					console.log(position, ':', (wager * 100.0) + '%', (chance * 100.0) + '%', odds + ':1');
+					pips = (100.0 * wager) / 1000.0;
+					pips = position === 'long'
+						? 1.0 - pips
+						: position === 'short'
+							? 1.0 + pips
+							: 0.0;
+					console.log(position, ':', (wager * 100.0) + '%', pips, '|', odds + ' to 1');
 				}
 			}
 		}
