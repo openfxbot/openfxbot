@@ -134,7 +134,8 @@ parser.on('finish', function(){
 	var chance = 0.0;
 	var odds = 0.0;
 	var wager;
-	var pips;
+	var totalWager;
+	var stopLoss;
 
 	console.log('results:', JSON.stringify(results, null, '\t'));
 
@@ -151,16 +152,21 @@ parser.on('finish', function(){
 
 				if(odds > 0.0) {
 					wager = chance - ((1.0 - chance) / odds);
-					pips = (100.0 * wager) / 1000.0;
-					pips = position === 'long'
-						? 1.0 - pips
-						: position === 'short'
-							? 1.0 + pips
-							: 0.0;
-					console.log(position, ':', (wager * 100.0) + '%', pips, '|', odds + ' to 1');
+					results[currency][position]['wager'] = wager;
+
+					console.log(position, ':', (wager * 100.0) + '%');
 				}
 			}
 		}
+
+		totalWager = results[currency]['long']['wager'] - results[currency]['short']['wager'];
+		stopLoss = 1.0 - ((totalWager * 100.0) / 1000.0);
+		console.log(
+			'action', ':',
+			totalWager > 0.0 ? 'buy' : 'sell',
+			(Math.abs(totalWager) * 100.0) + '%',
+			stopLoss
+		);
 	}
 });
 
