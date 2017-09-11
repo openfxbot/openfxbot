@@ -145,28 +145,34 @@ parser.on('finish', function(){
 		for(var j=0; j < positions.length; j++) {
 			currency = currencies[i];
 			position = positions[j];
+			odds = 0.0;
 
 			if(results[currency][position]['total']) {
 				chance = results[currency][position]['chance'] / results[currency][position]['total'];
 				odds = results[currency][position]['odds'] - 1.0;
+			}
 
-				if(odds > 0.0) {
-					wager = chance - ((1.0 - chance) / odds);
-					results[currency][position]['wager'] = wager;
+			if(odds > 0.0) {
+				wager = chance - ((1.0 - chance) / odds);
+				results[currency][position]['wager'] = wager;
 
-					console.log(position, ':', (wager * 100.0) + '%');
-				}
+				console.log(position, ':', (wager * 100.0) + '%');
+			} else {
+				wager = 0.0;
+				results[currency][position]['wager'] = 0.0;
 			}
 		}
 
 		totalWager = results[currency]['long']['wager'] - results[currency]['short']['wager'];
-		stopLoss = 1.0 - ((totalWager * 100.0) / 1000.0);
-		console.log(
-			'action', ':',
-			totalWager > 0.0 ? 'buy' : 'sell',
-			(Math.abs(totalWager) * 100.0) + '%',
-			stopLoss
-		);
+		if(Math.abs(totalWager) > 0.0) {
+			stopLoss = 1.0 - ((totalWager * 100.0) / 1000.0);
+			console.log(
+				'action', ':',
+				totalWager > 0.0 ? 'buy' : 'sell',
+				(Math.abs(totalWager) * 100.0) + '%',
+				stopLoss
+			);
+		}
 	}
 });
 
