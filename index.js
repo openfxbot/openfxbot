@@ -165,6 +165,7 @@ var iterate = function(args){
 					if(!args.max.meetsCriterion || meetsCriterion) {
 						process.stdout.write(formattedRow);
 						args.max = {
+							lastUpdatedDate: new Date(),
 							meetsCriterion: meetsCriterion,
 							cycles: cycles,
 							wealth: wealth,
