@@ -137,18 +137,18 @@ var iterate = function(args){
 			return acc
 		}, {previousAction: null, candles: []})
 		.subscribeOnCompleted(function() {
-			var percentSuccess = (wealth / testTotalReward) * 100.0;
-
 			var weights = agent.toJSON();
 			args.weights = weights;
 			var cycles = args.cycles;
 			args.cycles = cycles + 1;
 
-			var odds = (decisions.reward.ratio + decisions.reward.odds) / 2.0
+			var odds = Math.min(decisions.reward.ratio, decisions.reward.odds);
 			var b = odds - 1.0;
 			var p = wealth / testTotalReward;
 			var q = (1.0 - p);
 			var meetsCriterion = (b > q / p);
+
+			var percentSuccess = p * 100.0;
 
 			var row = [
 				[
@@ -169,7 +169,7 @@ var iterate = function(args){
 							meetsCriterion: meetsCriterion,
 							cycles: cycles,
 							wealth: wealth,
-							percentSuccess: percentSuccess / 100.0,
+							percentSuccess: p,
 							odds: odds,
 							weights: weights
 						};
