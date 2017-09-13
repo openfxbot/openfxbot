@@ -142,7 +142,7 @@ var iterate = function(args){
 			var cycles = args.cycles;
 			args.cycles = cycles + 1;
 
-			var odds = Math.min(decisions.reward.ratio, decisions.reward.odds);
+			var odds = decisions.correct / decisions.wrong;
 			var b = odds - 1.0;
 			var p = wealth / testTotalReward;
 			var q = (1.0 - p);
