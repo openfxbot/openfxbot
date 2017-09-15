@@ -136,8 +136,6 @@ parser.on('finish', function(){
 	var wager;
 	var totalWager;
 	var stopLoss;
-	var max;
-	var min;
 
 	console.log('results:', JSON.stringify(results, null, '\t'));
 
@@ -165,17 +163,7 @@ parser.on('finish', function(){
 			}
 		}
 
-		max = Math.max(
-			results[currency]['long']['wager'],
-			results[currency]['short']['wager'],
-			results[currency]['hold']['wager']
-		);
-		min = Math.min(
-			results[currency]['long']['wager'],
-			results[currency]['short']['wager'],
-			results[currency]['hold']['wager']
-		);
-		totalWager =  max - min;
+		totalWager =  results[currency]['long']['wager'] - results[currency]['short']['wager'];
 		if(Math.abs(totalWager) > 0.0) {
 			stopLoss = 1.0 - ((totalWager * 100.0) / 1000.0);
 			console.log(
