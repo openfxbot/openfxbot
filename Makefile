@@ -55,8 +55,10 @@ merge:
 	git merge master
 	git checkout audusd
 	git pull
+	git merge master
 	git checkout usdcad
 	git pull
+	git merge master
 	git checkout nzdusd
 	git pull
 	git merge master
