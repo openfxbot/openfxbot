@@ -78,6 +78,34 @@ var results = {
 			wager: 0.0,
 			total: 0
 		}
+	},
+	usdcad: {
+		hold: {
+			wager: 0.0,
+			total: 0
+		},
+		long: {
+			wager: 0.0,
+			total: 0
+		},
+		short: {
+			wager: 0.0,
+			total: 0
+		}
+	},
+	nzdusd: {
+		hold: {
+			wager: 0.0,
+			total: 0
+		},
+		long: {
+			wager: 0.0,
+			total: 0
+		},
+		short: {
+			wager: 0.0,
+			total: 0
+		}
 	}
 };
 
@@ -114,7 +142,7 @@ parser.on('error', function(err){
 });
 // When we are done, test that the parsed output matched what expected
 parser.on('finish', function(){
-	var currencies = ['eurusd', 'usdchf', 'usdjpy','gbpusd', 'audusd'];
+	var currencies = ['eurusd', 'usdchf', 'usdjpy','gbpusd', 'audusd', 'usdcad', 'nzdusd'];
 	var positions = ['hold', 'long', 'short'];
 	var currency, position;
 	var totalWager;
