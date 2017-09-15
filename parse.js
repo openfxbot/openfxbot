@@ -115,7 +115,7 @@ parser.on('readable', function(){
 		if(chance > 0.0 && odds > 0.0) {
 			if(meetsCriterion) {
 				results[currency][position]['chance'] = (results[currency][position]['chance'] || 0.0) + chance;
-				results[currency][position]['odds'] = Math.max(results[currency][position]['odds'] || 0.0, odds);
+				results[currency][position]['odds'] = (results[currency][position]['odds'] || 0.0) + odds;
 
 				results[currency][position]['total'] = (results[currency][position]['total'] || 0) + 1.0;
 			}
@@ -151,7 +151,7 @@ parser.on('finish', function(){
 
 			if(results[currency][position]['total']) {
 				chance = results[currency][position]['chance'] / results[currency][position]['total'];
-				odds = results[currency][position]['odds'] - 1.0;
+				odds = (results[currency][position]['odds'] / results[currency][position]['total']) - 1.0;
 			}
 
 			if(odds > 0.0) {
