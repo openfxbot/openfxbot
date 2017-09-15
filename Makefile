@@ -29,6 +29,14 @@ report:
 	ls neurons | awk '{print "node report.js --currency=audusd --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	./tmp.sh | sort | tee -a report.csv
+	git checkout origin/usdcad
+	ls neurons | awk '{print "node report.js --currency=usdcad --config-file=" $$1}' > ./tmp.sh
+	chmod a+x ./tmp.sh
+	./tmp.sh | sort | tee -a report.csv
+	git checkout origin/nzdusd
+	ls neurons | awk '{print "node report.js --currency=nzdusd --config-file=" $$1}' > ./tmp.sh
+	chmod a+x ./tmp.sh
+	./tmp.sh | sort | tee -a report.csv
 	git checkout master
 	node parse.js
 
@@ -48,11 +56,17 @@ merge:
 	git checkout audusd
 	git pull
 	git merge master
+	git checkout usdcad
+	git pull
+	git merge master
+	git checkout nzdusd
+	git pull
+	git merge master
 	git checkout master
 	make push
 
 push:
-	git push origin eurusd:eurusd && git push origin usdchf:usdchf && git push origin usdjpy:usdjpy && git push origin gbpusd:gbpusd && git push origin audusd:audusd
+	git push origin eurusd:eurusd && git push origin usdchf:usdchf && git push origin usdjpy:usdjpy && git push origin gbpusd:gbpusd && git push origin audusd:audusd && git push origin usdcad:usdcad && git push origin nzdusd:nzdusd
 
 backtest:
 	echo 'TBD'
@@ -77,6 +91,14 @@ report-local:
 	./tmp.sh | sort | tee -a report.csv
 	git checkout audusd
 	ls neurons | awk '{print "node report.js --currency=audusd --config-file=" $$1}' > ./tmp.sh
+	chmod a+x ./tmp.sh
+	./tmp.sh | sort | tee -a report.csv
+	git checkout usdcad
+	ls neurons | awk '{print "node report.js --currency=usdcad --config-file=" $$1}' > ./tmp.sh
+	chmod a+x ./tmp.sh
+	./tmp.sh | sort | tee -a report.csv
+	git checkout nzdusd
+	ls neurons | awk '{print "node report.js --currency=nzdusd --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	./tmp.sh | sort | tee -a report.csv
 	git checkout master
