@@ -163,7 +163,8 @@ parser.on('finish', function(){
 	var odds = 0.0;
 	var wager;
 	var totalWager;
-	var stopLoss;
+	var holdWager;
+	var action;
 
 	console.log('results:', JSON.stringify(results, null, '\t'));
 
@@ -192,20 +193,24 @@ parser.on('finish', function(){
 		}
 
 		totalWager =  results[currency]['long']['wager'] - results[currency]['short']['wager'];
+		action = (results[currency]['long']['wager'] - results[currency]['short']['wager']) > 0.0
+					? 'BUY'
+					: 'SELL';
+
 		if(results[currency]['hold']['wager'] > 0.0) {
-			totalWager = totalWager + (totalWager > 0.0
+			holdWager = totalWager > 0.0
 				? results[currency]['long']['wager'] - results[currency]['hold']['wager']
-				: results[currency]['short']['wager'] - results[currency]['hold']['wager']);
+				: results[currency]['hold']['wager'] - results[currency]['short']['wager'];
+		} else {
+			holdWager = 0.0;
+			totalWager = Math.abs(totalWager);
 		}
-		if(Math.abs(totalWager) > 0.0) {
-			stopLoss = 1.0 - ((totalWager * 100.0) / 1000.0);
+		totalWager = ((totalWager + holdWager) / holdWager) - 1.0;
+		if(totalWager > 0.0) {
 			console.log(
-				'action', ':',
-				(results[currency]['long']['wager'] - results[currency]['short']['wager']) > 0.0
-					? 'buy'
-					: 'sell',
-				(Math.abs(totalWager) * 100.0) + '%',
-				stopLoss
+				action,
+				':',
+				totalWager
 			);
 		}
 	}
