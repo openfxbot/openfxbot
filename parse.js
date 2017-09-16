@@ -192,10 +192,10 @@ parser.on('finish', function(){
 			}
 		}
 
-		totalWager =  results[currency]['long']['wager'] - results[currency]['short']['wager'];
+		action = totalWager =  results[currency]['long']['wager'] - results[currency]['short']['wager'];
 		action = (results[currency]['long']['wager'] - results[currency]['short']['wager']) > 0.0
-					? 'BUY'
-					: 'SELL';
+					? 1.0
+					: -1.0;
 
 		if(results[currency]['hold']['wager'] > 0.0) {
 			holdWager = totalWager > 0.0
@@ -208,12 +208,7 @@ parser.on('finish', function(){
 		denom = holdWager + totalWager;
 		if(totalWager > 0.0 ? (denom >= totalWager) : (denom <= totalWager)) {
 			totalWager = totalWager / (holdWager + totalWager);
-			console.log(
-				(totalWager * 100) + '%',
-				':',
-				action,
-				currency
-			);
+			console.log(report(totalWager, action, currency));
 		}
 	}
 
@@ -236,3 +231,26 @@ lineReader.on('line', function (line) {
 lineReader.on('close', function() {
 	parser.end();
 })
+
+function report(totalWager, action, currency) {
+	var mappedCurrency = {
+		usdchf: 'CHF',
+		usdjpy: 'JPY',
+		usdcad: 'CAD',
+		eurusd: 'EUR',
+		gbpusd: 'GBP',
+		audusd: 'AUD',
+		nzdusd: 'NZD'
+	}
+	var mappedAction = {
+		usdchf: -1.0,
+		usdjpy: -1.0,
+		usdcad: -1.0,
+		eurusd: 1.0,
+		gbpusd: 1.0,
+		audusd: 1.0,
+		nzdusd: 1.0
+	}
+
+	return (action * mappedAction[currency] * totalWager * 100.0) + ' ' +  mappedCurrency[currency];
+}
