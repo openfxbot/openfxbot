@@ -162,9 +162,9 @@ parser.on('finish', function(){
 	var chance = 0.0;
 	var odds = 0.0;
 	var wager;
+	var netWager;
 	var totalWager;
 	var holdWager;
-	var denom;
 	var action;
 
 	console.error('results:', JSON.stringify(results, null, '\t'));
@@ -192,24 +192,23 @@ parser.on('finish', function(){
 			}
 		}
 
-		action = totalWager =  results[currency]['long']['wager'] - results[currency]['short']['wager'];
+		netWager =  results[currency]['long']['wager'] - results[currency]['short']['wager'];
 		action = (results[currency]['long']['wager'] - results[currency]['short']['wager']) > 0.0
 					? 1.0
 					: -1.0;
 
 		if(results[currency]['hold']['wager'] > 0.0) {
-			holdWager = totalWager > 0.0
-				? results[currency]['long']['wager'] - results[currency]['hold']['wager']
-				: results[currency]['hold']['wager'] - results[currency]['short']['wager'];
+			holdWager = action > 0.0
+				? results[currency]['hold']['wager'] - results[currency]['short']['wager']
+				: results[currency]['hold']['wager'] - results[currency]['long']['wager'];
 		} else {
 			holdWager = 0.0;
 		}
 
-		denom = holdWager + totalWager;
-		if(totalWager > 0.0 ? (denom >= totalWager) : (denom <= totalWager)) {
-			totalWager = totalWager / (holdWager + totalWager);
-			console.log(report(totalWager, action, currency));
-		}
+		//if(action > 0.0 ? (denom >= netWager) : (denom <= netWager)) {
+			totalWager = (netWager - holdWager) / netWager;
+			console.log(report(netWager, totalWager, currency));
+		//}
 	}
 
 	console.error('========= REPORT =========');
@@ -232,7 +231,7 @@ lineReader.on('close', function() {
 	parser.end();
 })
 
-function report(totalWager, action, currency) {
+function report(netWager, totalWager, currency) {
 	var mappedCurrency = {
 		usdchf: 'CHF',
 		usdjpy: 'JPY',
@@ -252,5 +251,5 @@ function report(totalWager, action, currency) {
 		nzdusd: 1.0
 	}
 
-	return (action * mappedAction[currency] * totalWager * 100.0) + ' ' +  mappedCurrency[currency];
+	return (mappedAction[currency] * totalWager * netWager * 100.0) + ' ' +  mappedCurrency[currency];
 }
