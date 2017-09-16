@@ -152,7 +152,7 @@ parser.on('readable', function(){
 });
 // Catch any error
 parser.on('error', function(err){
-  console.log(err.message);
+  console.error(err.message);
 });
 // When we are done, test that the parsed output matched what expected
 parser.on('finish', function(){
@@ -164,12 +164,13 @@ parser.on('finish', function(){
 	var wager;
 	var totalWager;
 	var holdWager;
+	var denom;
 	var action;
 
-	console.log('results:', JSON.stringify(results, null, '\t'));
+	console.error('results:', JSON.stringify(results, null, '\t'));
 
 	for(var i = 0; i< currencies.length; i++) {
-		console.log('-------', currencies[i],'-------');
+		console.error('-------', currencies[i],'-------');
 
 		for(var j=0; j < positions.length; j++) {
 			currency = currencies[i];
@@ -185,9 +186,8 @@ parser.on('finish', function(){
 				wager = chance - ((1.0 - chance) / odds);
 				results[currency][position]['wager'] = wager;
 
-				console.log(position, ':', (wager * 100.0) + '%');
+				console.error(position, ':', (wager * 100.0) + '%');
 			} else {
-				wager = 0.0;
 				results[currency][position]['wager'] = 0.0;
 			}
 		}
@@ -203,17 +203,21 @@ parser.on('finish', function(){
 				: results[currency]['hold']['wager'] - results[currency]['short']['wager'];
 		} else {
 			holdWager = 0.0;
-			totalWager = Math.abs(totalWager);
 		}
-		totalWager = ((totalWager + holdWager) / holdWager) - 1.0;
-		if(totalWager > 0.0) {
+
+		denom = holdWager + totalWager;
+		if(totalWager > 0.0 ? (denom >= totalWager) : (denom <= totalWager)) {
+			totalWager = totalWager / (holdWager + totalWager);
 			console.log(
-				action,
+				(totalWager * 100) + '%',
 				':',
-				totalWager
+				action,
+				currency
 			);
 		}
 	}
+
+	console.error('========= REPORT =========');
 });
 
 var lineReader = require('readline').createInterface({
