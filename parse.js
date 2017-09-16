@@ -192,9 +192,11 @@ parser.on('finish', function(){
 		}
 
 		totalWager =  results[currency]['long']['wager'] - results[currency]['short']['wager'];
-		totalWager = totalWager + (totalWager > 0.0
-			? results[currency]['long']['wager'] - results[currency]['hold']['wager']
-			: results[currency]['short']['wager'] - results[currency]['hold']['wager']);
+		if(results[currency]['hold']['wager'] > 0.0) {
+			totalWager = totalWager + (totalWager > 0.0
+				? results[currency]['long']['wager'] - results[currency]['hold']['wager']
+				: results[currency]['short']['wager'] - results[currency]['hold']['wager']);
+		}
 		if(Math.abs(totalWager) > 0.0) {
 			stopLoss = 1.0 - ((totalWager * 100.0) / 1000.0);
 			console.log(
