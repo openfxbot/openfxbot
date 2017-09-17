@@ -249,5 +249,6 @@ function report(netWager, totalWager, currency) {
 		nzdusd: 1.0
 	}
 
-	return (mappedAction[currency] * totalWager * netWager * 100.0) + ' ' +  mappedCurrency[currency];
+	var action = (netWager > 0 ? 'BUY' : 'SELL') + ' ' + currency;
+	return (mappedAction[currency] * totalWager * netWager * 100.0) + ' ' +  mappedCurrency[currency] + ' - ' + action;
 }
