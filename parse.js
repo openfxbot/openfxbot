@@ -197,6 +197,7 @@ parser.on('finish', function(){
 					? 1.0
 					: -1.0;
 
+		holdWager = 0.0; // reset holdWager
 		if(results[currency]['hold']['wager'] > 0.0) {
 			holdWager = action > 0.0
 				? results[currency]['hold']['wager'] - results[currency]['short']['wager']
