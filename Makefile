@@ -40,6 +40,59 @@ report:
 	git checkout master
 	node parse.js | sort -rn
 
+archive:
+	git checkout eurusd
+	git pull
+	-mkdir -p ./archives
+	grep -o '"meetsCriterion":false' ./neurons/* | cut -f 1 -d : | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
+	git add -A ./neurons
+	git add ./archives
+	git commit -m 'fix: archive'
+	git checkout usdchf
+	git pull
+	-mkdir -p ./archives
+	grep -o '"meetsCriterion":false' ./neurons/* | cut -f 1 -d : | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
+	git add -A ./neurons
+	git add ./archives
+	git commit -m 'fix: archive'
+	git checkout usdjpy
+	git pull
+	-mkdir -p ./archives
+	grep -o '"meetsCriterion":false' ./neurons/* | cut -f 1 -d : | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
+	git add -A ./neurons
+	git add ./archives
+	git commit -m 'fix: archive'
+	git checkout gbpusd
+	git pull
+	-mkdir -p ./archives
+	grep -o '"meetsCriterion":false' ./neurons/* | cut -f 1 -d : | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
+	git add -A ./neurons
+	git add ./archives
+	git commit -m 'fix: archive'
+	git checkout audusd
+	git pull
+	-mkdir -p ./archives
+	grep -o '"meetsCriterion":false' ./neurons/* | cut -f 1 -d : | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
+	git add -A ./neurons
+	git add ./archives
+	git commit -m 'fix: archive'
+	git checkout usdcad
+	git pull
+	-mkdir -p ./archives
+	grep -o '"meetsCriterion":false' ./neurons/* | cut -f 1 -d : | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
+	git add -A ./neurons
+	git add ./archives
+	git commit -m 'fix: archive'
+	git checkout nzdusd
+	git pull
+	-mkdir -p ./archives
+	grep -o '"meetsCriterion":false' ./neurons/* | cut -f 1 -d : | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
+	git add -A ./neurons
+	git add ./archives
+	git commit -m 'fix: archive'
+	git checkout master
+	make push
+
 merge:
 	git checkout eurusd
 	git pull
