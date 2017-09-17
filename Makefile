@@ -102,4 +102,4 @@ report-local:
 	chmod a+x ./tmp.sh
 	./tmp.sh | sort | tee -a report.csv
 	git checkout master
-	node parse.js
+	node parse.js | sort -rn
