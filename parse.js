@@ -193,22 +193,20 @@ parser.on('finish', function(){
 		}
 
 		netWager =  results[currency]['long']['wager'] - results[currency]['short']['wager'];
-		action = (results[currency]['long']['wager'] - results[currency]['short']['wager']) > 0.0
+		action = netWager > 0.0
 					? 1.0
 					: -1.0;
 
 		if(results[currency]['hold']['wager'] > 0.0) {
 			holdWager = action > 0.0
 				? results[currency]['hold']['wager'] - results[currency]['short']['wager']
-				: results[currency]['hold']['wager'] - results[currency]['long']['wager'];
-		} else {
-			holdWager = 0.0;
+				: results[currency]['long']['wager'] - results[currency]['hold']['wager'];
 		}
 
-		//if(action > 0.0 ? (denom >= netWager) : (denom <= netWager)) {
+		if(action > 0.0 ? (netWager >= holdWager) : (netWager <= holdWager)) {
 			totalWager = (netWager - holdWager) / netWager;
 			console.log(report(netWager, totalWager, currency));
-		//}
+		}
 	}
 
 	console.error('========= REPORT =========');
