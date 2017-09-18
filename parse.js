@@ -165,7 +165,6 @@ parser.on('finish', function(){
 	var netWager;
 	var totalWager;
 	var holdWager;
-	var reverseHoldWager;
 	var action;
 
 	console.error('results:', JSON.stringify(results, null, '\t'));
@@ -199,21 +198,15 @@ parser.on('finish', function(){
 					: -1.0;
 
 		holdWager = 0.0; // reset holdWager
-		reverseHoldWager = 0.0; // reset holdWager
 		if(results[currency]['hold']['wager'] > 0.0) {
 			holdWager = action > 0.0
 				? results[currency]['hold']['wager'] - results[currency]['long']['wager']
 				: results[currency]['short']['wager'] - results[currency]['hold']['wager'];
-			reverseHoldWager = action > 0.0
-				? results[currency]['short']['wager'] - results[currency]['hold']['wager']
-				: results[currency]['hold']['wager'] - results[currency]['long']['wager'];
 		}
 
 		if(action > 0.0 ? (netWager >= holdWager) : (netWager <= holdWager)) {
-			if(action > 0.0 ? (netWager >= -reverseHoldWager) : (netWager <= -reverseHoldWager)) {
-				totalWager = (netWager - holdWager) / (netWager + reverseHoldWager);
-				console.log(report(netWager, totalWager, currency));
-			}
+			totalWager = (netWager - holdWager) / netWager;
+			console.log(report(netWager, totalWager, currency));
 		}
 	}
 
