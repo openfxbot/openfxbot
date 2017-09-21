@@ -10,35 +10,88 @@ report:
 	echo '"Currency","Position","Probability","Odds","Meets Criterion","File"' > report.csv
 	git fetch origin
 	git checkout origin/eurusd
-	ls neurons | awk '{print "node report.js --currency=eurusd --config-file=" $$1}' > ./tmp.sh
+	ls agents | awk '{print "node compiler.js --currency=eurusd --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	./tmp.sh | sort | tee -a report.csv
 	git checkout origin/usdjpy
-	ls neurons | awk '{print "node report.js --currency=usdjpy --config-file=" $$1}' > ./tmp.sh
+	ls agents | awk '{print "node compiler.js --currency=usdjpy --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	./tmp.sh | sort | tee -a report.csv
 	git checkout origin/usdchf
-	ls neurons | awk '{print "node report.js --currency=usdchf --config-file=" $$1}' > ./tmp.sh
+	ls agents | awk '{print "node compiler.js --currency=usdchf --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	./tmp.sh | sort | tee -a report.csv
 	git checkout origin/gbpusd
-	ls neurons | awk '{print "node report.js --currency=gbpusd --config-file=" $$1}' > ./tmp.sh
+	ls agents | awk '{print "node compiler.js --currency=gbpusd --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	./tmp.sh | sort | tee -a report.csv
 	git checkout origin/audusd
-	ls neurons | awk '{print "node report.js --currency=audusd --config-file=" $$1}' > ./tmp.sh
+	ls agents | awk '{print "node compiler.js --currency=audusd --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	./tmp.sh | sort | tee -a report.csv
 	git checkout origin/usdcad
-	ls neurons | awk '{print "node report.js --currency=usdcad --config-file=" $$1}' > ./tmp.sh
+	ls agents | awk '{print "node compiler.js --currency=usdcad --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	./tmp.sh | sort | tee -a report.csv
 	git checkout origin/nzdusd
-	ls neurons | awk '{print "node report.js --currency=nzdusd --config-file=" $$1}' > ./tmp.sh
+	ls agents | awk '{print "node compiler.js --currency=nzdusd --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	./tmp.sh | sort | tee -a report.csv
 	git checkout master
-	node parse.js
+	node parse.js | sort -rn
+
+archive:
+	git checkout eurusd
+	git pull
+	-mkdir -p ./archives
+	grep -o '"meetsCriterion":false' ./neurons/* | cut -f 1 -d : | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
+	git add -A ./neurons
+	git add ./archives
+	git commit -m 'fix: archive'
+	git checkout usdchf
+	git pull
+	-mkdir -p ./archives
+	grep -o '"meetsCriterion":false' ./neurons/* | cut -f 1 -d : | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
+	git add -A ./neurons
+	git add ./archives
+	git commit -m 'fix: archive'
+	git checkout usdjpy
+	git pull
+	-mkdir -p ./archives
+	grep -o '"meetsCriterion":false' ./neurons/* | cut -f 1 -d : | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
+	git add -A ./neurons
+	git add ./archives
+	git commit -m 'fix: archive'
+	git checkout gbpusd
+	git pull
+	-mkdir -p ./archives
+	grep -o '"meetsCriterion":false' ./neurons/* | cut -f 1 -d : | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
+	git add -A ./neurons
+	git add ./archives
+	git commit -m 'fix: archive'
+	git checkout audusd
+	git pull
+	-mkdir -p ./archives
+	grep -o '"meetsCriterion":false' ./neurons/* | cut -f 1 -d : | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
+	git add -A ./neurons
+	git add ./archives
+	git commit -m 'fix: archive'
+	git checkout usdcad
+	git pull
+	-mkdir -p ./archives
+	grep -o '"meetsCriterion":false' ./neurons/* | cut -f 1 -d : | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
+	git add -A ./neurons
+	git add ./archives
+	git commit -m 'fix: archive'
+	git checkout nzdusd
+	git pull
+	-mkdir -p ./archives
+	grep -o '"meetsCriterion":false' ./neurons/* | cut -f 1 -d : | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
+	git add -A ./neurons
+	git add ./archives
+	git commit -m 'fix: archive'
+	git checkout master
+	make push
 
 merge:
 	git checkout eurusd
@@ -74,32 +127,54 @@ backtest:
 report-local:
 	echo '"Currency","Position","Probability","Odds","Meets Criterion","File"' > report.csv
 	git checkout eurusd
-	ls neurons | awk '{print "node report.js --currency=eurusd --config-file=" $$1}' > ./tmp.sh
+	ls agents | awk '{print "node compiler.js --currency=eurusd --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	./tmp.sh | sort | tee -a report.csv
 	git checkout usdjpy
-	ls neurons | awk '{print "node report.js --currency=usdjpy --config-file=" $$1}' > ./tmp.sh
+	ls agents | awk '{print "node compiler.js --currency=usdjpy --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	./tmp.sh | sort | tee -a report.csv
 	git checkout usdchf
-	ls neurons | awk '{print "node report.js --currency=usdchf --config-file=" $$1}' > ./tmp.sh
+	ls agents | awk '{print "node compiler.js --currency=usdchf --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	./tmp.sh | sort | tee -a report.csv
 	git checkout gbpusd
-	ls neurons | awk '{print "node report.js --currency=gbpusd --config-file=" $$1}' > ./tmp.sh
+	ls agents | awk '{print "node compiler.js --currency=gbpusd --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	./tmp.sh | sort | tee -a report.csv
 	git checkout audusd
-	ls neurons | awk '{print "node report.js --currency=audusd --config-file=" $$1}' > ./tmp.sh
+	ls agents | awk '{print "node compiler.js --currency=audusd --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	./tmp.sh | sort | tee -a report.csv
 	git checkout usdcad
-	ls neurons | awk '{print "node report.js --currency=usdcad --config-file=" $$1}' > ./tmp.sh
+	ls agents | awk '{print "node compiler.js --currency=usdcad --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	./tmp.sh | sort | tee -a report.csv
 	git checkout nzdusd
-	ls neurons | awk '{print "node report.js --currency=nzdusd --config-file=" $$1}' > ./tmp.sh
+	ls agents | awk '{print "node compiler.js --currency=nzdusd --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	./tmp.sh | sort | tee -a report.csv
 	git checkout master
-	node parse.js
+	node parse.js | sort -rn
+
+compile:
+	git fetch origin
+	mkdir -p ./agents
+	git checkout origin/eurusd
+	ls ./neurons | awk '{print "./neurons/" $$1, "./agents/eurusd-" $$1}' | xargs -n 2 cp
+	git checkout origin/audusd
+	ls ./neurons | awk '{print "./neurons/" $$1, "./agents/audusd-" $$1}' | xargs -n 2 cp
+	git checkout origin/gbpusd
+	ls ./neurons | awk '{print "./neurons/" $$1, "./agents/gbpusd-" $$1}' | xargs -n 2 cp
+	git checkout origin/nzdusd
+	ls ./neurons | awk '{print "./neurons/" $$1, "./agents/nzdusd-" $$1}' | xargs -n 2 cp
+	git checkout origin/usdjpy
+	ls ./neurons | awk '{print "./neurons/" $$1, "./agents/usdjpy-" $$1}' | xargs -n 2 cp
+	git checkout origin/usdchf
+	ls ./neurons | awk '{print "./neurons/" $$1, "./agents/usdchf-" $$1}' | xargs -n 2 cp
+	git checkout origin/usdcad
+	ls ./neurons | awk '{print "./neurons/" $$1, "./agents/usdcad-" $$1}' | xargs -n 2 cp
+	git checkout master
+	cp report.js compiler.js
+	make report
+	git checkout master

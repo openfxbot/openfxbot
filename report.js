@@ -17,7 +17,7 @@ var currency = nconf.get('currency');
 var configFile = nconf.get('config-file');
 assert.ok(configFile, '``--config-file` was not provided')
 
-var filePath = './neurons/' + configFile;
+var filePath = './agents/' + configFile;
 
 function report(args){
 	var env = {};
