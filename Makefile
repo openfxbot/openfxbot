@@ -1,3 +1,5 @@
+DIR_AGENTS?=./neurons
+
 neuron:
 	node index.js --min-sensitivity=${MIN_SENSITIVITY} --max-sensitivity=${MAX_SENSITIVITY} --min-alpha=${MIN_ALPHA} --max-alpha=${MAX_ALPHA} --min-gamma=${MIN_GAMMA} --max-gamma=${MAX_GAMMA} --min-epsilon=${MIN_EPSILON} --max-epsilon=${MAX_EPSILON} --test-size=${TEST_SIZE} --min-states=${MIN_STATES} --output-file=${OUTPUT_FILENAME} | tee -a ./results.csv
 	git config --global user.email ${GIT_EMAIL}
@@ -7,34 +9,35 @@ neuron:
 	git commit -a -m 'test: new neuron'
 
 report:
+	cp report.js compiler.js
 	echo '"Currency","Position","Probability","Odds","Meets Criterion","File"' > report.csv
 	git fetch origin
 	git checkout origin/eurusd
-	ls agents | awk '{print "node compiler.js --currency=eurusd --config-file=" $$1}' > ./tmp.sh
+	ls $(DIR_AGENTS) | awk '{print "node compiler.js --currency=eurusd --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	./tmp.sh | sort | tee -a report.csv
 	git checkout origin/usdjpy
-	ls agents | awk '{print "node compiler.js --currency=usdjpy --config-file=" $$1}' > ./tmp.sh
+	ls $(DIR_AGENTS) | awk '{print "node compiler.js --currency=usdjpy --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	./tmp.sh | sort | tee -a report.csv
 	git checkout origin/usdchf
-	ls agents | awk '{print "node compiler.js --currency=usdchf --config-file=" $$1}' > ./tmp.sh
+	ls $(DIR_AGENTS) | awk '{print "node compiler.js --currency=usdchf --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	./tmp.sh | sort | tee -a report.csv
 	git checkout origin/gbpusd
-	ls agents | awk '{print "node compiler.js --currency=gbpusd --config-file=" $$1}' > ./tmp.sh
+	ls $(DIR_AGENTS) | awk '{print "node compiler.js --currency=gbpusd --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	./tmp.sh | sort | tee -a report.csv
 	git checkout origin/audusd
-	ls agents | awk '{print "node compiler.js --currency=audusd --config-file=" $$1}' > ./tmp.sh
+	ls $(DIR_AGENTS) | awk '{print "node compiler.js --currency=audusd --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	./tmp.sh | sort | tee -a report.csv
 	git checkout origin/usdcad
-	ls agents | awk '{print "node compiler.js --currency=usdcad --config-file=" $$1}' > ./tmp.sh
+	ls $(DIR_AGENTS) | awk '{print "node compiler.js --currency=usdcad --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	./tmp.sh | sort | tee -a report.csv
 	git checkout origin/nzdusd
-	ls agents | awk '{print "node compiler.js --currency=nzdusd --config-file=" $$1}' > ./tmp.sh
+	ls $(DIR_AGENTS) | awk '{print "node compiler.js --currency=nzdusd --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	./tmp.sh | sort | tee -a report.csv
 	git checkout master
@@ -125,6 +128,7 @@ backtest:
 	echo 'TBD'
 
 report-local:
+	cp report.js compiler.js
 	echo '"Currency","Position","Probability","Odds","Meets Criterion","File"' > report.csv
 	git checkout eurusd
 	ls agents | awk '{print "node compiler.js --currency=eurusd --config-file=" $$1}' > ./tmp.sh
@@ -175,6 +179,5 @@ compile:
 	git checkout origin/usdcad
 	ls ./neurons | awk '{print "./neurons/" $$1, "./agents/usdcad-" $$1}' | xargs -n 2 cp
 	git checkout master
-	cp report.js compiler.js
-	make report
+	make report DIR_AGENTS='./agents'
 	git checkout master
