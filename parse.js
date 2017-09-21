@@ -11,47 +11,90 @@ var parser = require('csv-parse')();
 var results = {
 	eurusd: {
 		hold: {
-			wager: 0.0,
+			chance: 0.0,
+			odds: 0.0,
 			total: 0
 		},
 		long: {
-			wager: 0.0,
+			chance: 0.0,
+			odds: 0.0,
 			total: 0
 		},
 		short: {
-			wager: 0.0,
+			chance: 0.0,
+			odds: 0.0,
 			total: 0
 		}
 	},
 	usdchf: {
 		hold: {
-			wager: 0.0,
+			chance: 0.0,
+			odds: 0.0,
 			total: 0
 		},
 		long: {
-			wager: 0.0,
+			chance: 0.0,
+			odds: 0.0,
 			total: 0
 		},
 		short: {
-			wager: 0.0,
+			chance: 0.0,
+			odds: 0.0,
 			total: 0
 		}
 	},
 	usdjpy: {
 		hold: {
-			wager: 0.0,
+			chance: 0.0,
+			odds: 0.0,
 			total: 0
 		},
 		long: {
-			wager: 0.0,
+			chance: 0.0,
+			odds: 0.0,
 			total: 0
 		},
 		short: {
-			wager: 0.0,
+			chance: 0.0,
+			odds: 0.0,
 			total: 0
 		}
 	},
 	gbpusd: {
+		hold: {
+			chance: 0.0,
+			odds: 0.0,
+			total: 0
+		},
+		long: {
+			chance: 0.0,
+			odds: 0.0,
+			total: 0
+		},
+		short: {
+			chance: 0.0,
+			odds: 0.0,
+			total: 0
+		}
+	},
+	audusd: {
+		hold: {
+			chance: 0.0,
+			odds: 0.0,
+			total: 0
+		},
+		long: {
+			chance: 0.0,
+			odds: 0.0,
+			total: 0
+		},
+		short: {
+			chance: 0.0,
+			odds: 0.0,
+			total: 0
+		}
+	},
+	usdcad: {
 		hold: {
 			wager: 0.0,
 			total: 0
@@ -65,7 +108,7 @@ var results = {
 			total: 0
 		}
 	},
-	audusd: {
+	nzdusd: {
 		hold: {
 			wager: 0.0,
 			total: 0
@@ -87,7 +130,6 @@ parser.on('readable', function(){
 	var record;
 	var chance;
 	var odds;
-	var wager;
 	var meetsCriterion;
 	var currency;
 	var position;
@@ -100,8 +142,8 @@ parser.on('readable', function(){
 
 		if(chance > 0.0 && odds > 0.0) {
 			if(meetsCriterion) {
-				wager = chance - ((1.0 - chance) / odds);
-				results[currency][position]['wager'] = Math.max(results[currency][position]['wager'], wager);
+				results[currency][position]['chance'] = (results[currency][position]['chance'] || 0.0) + chance;
+				results[currency][position]['odds'] = (results[currency][position]['odds'] || 0.0) + odds;
 
 				results[currency][position]['total'] = (results[currency][position]['total'] || 0) + 1.0;
 			}
@@ -110,41 +152,65 @@ parser.on('readable', function(){
 });
 // Catch any error
 parser.on('error', function(err){
-  console.log(err.message);
+  console.error(err.message);
 });
 // When we are done, test that the parsed output matched what expected
 parser.on('finish', function(){
-	var currencies = ['eurusd', 'usdchf', 'usdjpy','gbpusd', 'audusd'];
+	var currencies = ['eurusd', 'usdchf', 'usdjpy','gbpusd', 'audusd', 'usdcad', 'nzdusd'];
 	var positions = ['hold', 'long', 'short'];
 	var currency, position;
+	var chance = 0.0;
+	var odds = 0.0;
+	var wager;
+	var netWager;
 	var totalWager;
-	var stopLoss;
+	var holdWager;
+	var action;
 
-	console.log('results:', JSON.stringify(results, null, '\t'));
+	console.error('results:', JSON.stringify(results, null, '\t'));
 
 	for(var i = 0; i< currencies.length; i++) {
-		console.log('-------', currencies[i],'-------');
+		console.error('-------', currencies[i],'-------');
 
 		for(var j=0; j < positions.length; j++) {
 			currency = currencies[i];
 			position = positions[j];
+			odds = 0.0;
 
-			console.log(position, ':', (results[currency][position]['wager'] * 100.0) + '%');
+			if(results[currency][position]['total']) {
+				chance = results[currency][position]['chance'] / results[currency][position]['total'];
+				odds = (results[currency][position]['odds'] / results[currency][position]['total']) - 1.0;
+			}
+
+			if(odds > 0.0) {
+				wager = chance - ((1.0 - chance) / odds);
+				results[currency][position]['wager'] = wager;
+
+				console.error(position, ':', (wager * 100.0) + '%');
+			} else {
+				results[currency][position]['wager'] = 0.0;
+			}
 		}
 
-		totalWager =  results[currency]['long']['wager'] - results[currency]['short']['wager'];
-		if(Math.abs(totalWager) > 0.0) {
-			stopLoss = 1.0 - ((totalWager * 100.0) / 1000.0);
-			console.log(
-				'action', ':',
-				(results[currency]['long']['wager'] - results[currency]['short']['wager']) > 0.0
-					? 'buy'
-					: 'sell',
-				(Math.abs(totalWager) * 100.0) + '%',
-				stopLoss
-			);
+		netWager =  results[currency]['long']['wager'] - results[currency]['short']['wager'];
+		action = netWager > 0.0
+					? 1.0
+					: -1.0;
+
+		holdWager = 0.0; // reset holdWager
+		if(results[currency]['hold']['wager'] > 0.0) {
+			holdWager = action > 0.0
+				? results[currency]['hold']['wager'] - results[currency]['long']['wager']
+				: results[currency]['short']['wager'] - results[currency]['hold']['wager'];
+		}
+
+		if(action > 0.0 ? (netWager >= holdWager) : (netWager <= holdWager)) {
+			totalWager = (netWager - holdWager) / netWager;
+			console.log(report(netWager, totalWager, currency));
 		}
 	}
+
+	console.error('========= REPORT =========');
 });
 
 var lineReader = require('readline').createInterface({
@@ -163,3 +229,27 @@ lineReader.on('line', function (line) {
 lineReader.on('close', function() {
 	parser.end();
 })
+
+function report(netWager, totalWager, currency) {
+	var mappedCurrency = {
+		usdchf: 'CHF',
+		usdjpy: 'JPY',
+		usdcad: 'CAD',
+		eurusd: 'EUR',
+		gbpusd: 'GBP',
+		audusd: 'AUD',
+		nzdusd: 'NZD'
+	}
+	var mappedAction = {
+		usdchf: -1.0,
+		usdjpy: -1.0,
+		usdcad: -1.0,
+		eurusd: 1.0,
+		gbpusd: 1.0,
+		audusd: 1.0,
+		nzdusd: 1.0
+	}
+
+	var action = (netWager > 0 ? 'BUY' : 'SELL') + ' ' + currency;
+	return (mappedAction[currency] * totalWager * netWager * 100.0) + ' ' +  mappedCurrency[currency] + ' - ' + action;
+}
