@@ -251,5 +251,5 @@ function report(netWager, totalWager, currency) {
 	}
 
 	var action = (netWager > 0 ? 'BUY' : 'SELL') + ' ' + currency;
-	return (mappedAction[currency] * totalWager * netWager * 100.0) + ' ' +  mappedCurrency[currency] + ' - ' + action;
+	return (mappedAction[currency] * netWager * 100.0) + ' ' +  mappedCurrency[currency] + ' - ' + action;
 }
