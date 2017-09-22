@@ -15,6 +15,7 @@
 ## Week 2017-09-17
 
 Actual: NZD, EUR, AUD, GBP, CHF, JPY, CAD
+
 Expected:
 ```
 16.53153295304883 EUR - BUY eurusd
