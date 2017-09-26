@@ -166,14 +166,16 @@ parser.on('finish', function(){
 	var totalWager;
 	var holdWager;
 	var action;
+	var total;
 
 	console.error('results:', JSON.stringify(results, null, '\t'));
 
 	for(var i = 0; i< currencies.length; i++) {
-		console.error('-------', currencies[i],'-------');
+		currency = currencies[i];
+		console.error('-------', currency,'-------');
 
+		total = 0.0;
 		for(var j=0; j < positions.length; j++) {
-			currency = currencies[i];
 			position = positions[j];
 			odds = 0.0;
 
@@ -190,6 +192,8 @@ parser.on('finish', function(){
 			} else {
 				results[currency][position]['wager'] = 0.0;
 			}
+
+			total = total + results[currency][position]['wager'];
 		}
 
 		netWager =  results[currency]['long']['wager'] - results[currency]['short']['wager'];
@@ -205,7 +209,7 @@ parser.on('finish', function(){
 		}
 
 		if(action > 0.0 ? (netWager >= holdWager) : (netWager <= holdWager)) {
-			totalWager = (netWager - holdWager) / netWager;
+			totalWager = results[currency][action > 0.0 ? 'long' : 'short']['wager'] / total;
 			console.log(report(netWager, totalWager, currency));
 		}
 	}
