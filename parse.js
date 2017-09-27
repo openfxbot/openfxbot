@@ -134,7 +134,7 @@ parser.on('readable', function(){
 	var currency;
 	var position;
   while(record = parser.read()){
-	  currency = record[0];
+	  currency = record[0].toLowerCase();
 	  position = record[1];
 		chance = parseFloat(record[2]) || 0.0;
 		odds = parseFloat(record[3]) || 0.0;
