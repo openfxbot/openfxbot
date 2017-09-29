@@ -123,8 +123,8 @@ compile:
 	git checkout origin/usdcad
 	ls ./neurons | awk '{print "./neurons/" $$1, "./agents/usdcad-" $$1}' | xargs -n 2 cp
 	git checkout master
+	make filter DIR_AGENTS='./agents'
 	make report DIR_AGENTS='./agents'
-	git checkout master
 
 data:
 	mkdir -p ./downloads
@@ -133,3 +133,14 @@ data:
 	ls $(DIR_AGENTS) | awk '{print "DIR_AGENTS=$(DIR_AGENTS) node compiler.js --data=./downloads/${CURRENCY}.js --currency=${CURRENCY} --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	./tmp.sh | sort | tee -a report.csv
+
+filter:
+	ls $(DIR_AGENTS) | awk '{print "DIR_AGENTS=$(DIR_AGENTS) node filter.js --config-file=" $$1}' > ./tmp.sh
+	chmod a+x ./tmp.sh
+	mkdir -p ./tmp
+	./tmp.sh | sort -n | awk '{print "mv", $$2, "./tmp/"}' | tail -n 10 >> ./tmp-mv.sh
+	chmod a+x ./tmp-mv.sh
+	./tmp-mv.sh
+	rm ./tmp-mv.sh
+	rm -rf $(DIR_AGENTS)
+	mv ./tmp $(DIR_AGENTS)
