@@ -138,7 +138,7 @@ filter:
 	ls $(DIR_AGENTS) | awk '{print "DIR_AGENTS=$(DIR_AGENTS) node filter.js --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	mkdir -p ./tmp
-	./tmp.sh | sort -n | awk '{print "mv", $$2, "./tmp/"}' | tail -n 10 >> ./tmp-mv.sh
+	./tmp.sh | sort -n | tee scores.txt | awk '{print "mv", $$2, "./tmp/"}' | tail -n 10 >> ./tmp-mv.sh
 	chmod a+x ./tmp-mv.sh
 	./tmp-mv.sh
 	rm ./tmp-mv.sh
