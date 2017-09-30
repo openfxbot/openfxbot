@@ -208,7 +208,7 @@ parser.on('finish', function(){
 				: results[currency]['short']['wager'] - results[currency]['hold']['wager'];
 		}
 
-		if(action > 0.0 ? (netWager >= holdWager) : (netWager <= holdWager)) {
+		if(results[currency][action > 0.0 ? 'long' : 'short']['wager'] > results[currency]['hold']['wager']) {
 			totalWager = results[currency][action > 0.0 ? 'long' : 'short']['wager'] / total;
 			console.log(report(netWager, totalWager, currency));
 		}
