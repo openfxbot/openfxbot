@@ -1,6 +1,20 @@
 # LOG
 
+## Week 2017-10-01
+
+```
+-0.06453245361144 CAD - BUY usdcad
+-1.3944061318898373 CHF - BUY usdchf
+-1.925503573629311 JPY - BUY usdjpy
+-2.245612504141937 GBP - SELL gbpusd
+-3.0814354035302727 NZD - SELL nzdusd
+-3.771991613497342 AUD - SELL audusd
+-4.198971644579503 EUR - SELL eurusd
+```
+
 ## Week 2017-09-24
+
+Actual: CHF, **USD**, JPY, GBP, EUR, CAD, NZD, AUD
 
 ```
 15.42073172151838 NZD - BUY nzdusd
@@ -14,7 +28,7 @@
 
 ## Week 2017-09-17
 
-Actual: NZD, EUR, AUD, GBP, CHF, JPY, CAD
+Actual: NZD, **USD**, EUR, AUD, GBP, CHF, JPY, CAD
 
 Expected:
 ```
