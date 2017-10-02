@@ -2,6 +2,21 @@
 
 ## Week 2017-10-01
 
+Compiled with:
+
+```
+0.47198843008409475 './agents/gbpusd-2017-255-02.json'
+0.4802389160173781 './agents/usdjpy-2017-255-03.json'
+0.4832285907635282 './agents/usdjpy-2017-269-08.json'
+0.48550837576398415 './agents/gbpusd-2017-252-08.json'
+0.4906832792342146 './agents/usdchf-2017-253-06.json'
+0.49820104664584836 './agents/audusd-2017-255-04.json'
+0.5145947828532501 './agents/eurusd-2017-274-01.json'
+0.5443881753685228 './agents/eurusd-2017-272-11.json'
+0.5794733324750686 './agents/usdchf-2017-265-11.json'
+0.6357933198075771 './agents/usdchf-2017-252-05.json'
+```
+
 ```
 -0.06453245361144 CAD - BUY usdcad
 -1.3944061318898373 CHF - BUY usdchf
