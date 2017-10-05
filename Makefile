@@ -1,4 +1,5 @@
 DIR_AGENTS?=./agents
+AGENT_COUNT?=12
 
 neuron:
 	node index.js --min-sensitivity=${MIN_SENSITIVITY} --max-sensitivity=${MAX_SENSITIVITY} --min-alpha=${MIN_ALPHA} --max-alpha=${MAX_ALPHA} --min-gamma=${MIN_GAMMA} --max-gamma=${MAX_GAMMA} --min-epsilon=${MIN_EPSILON} --max-epsilon=${MAX_EPSILON} --test-size=${TEST_SIZE} --min-states=${MIN_STATES} --output-file=${OUTPUT_FILENAME} | tee -a ./results.csv
@@ -159,7 +160,7 @@ filter:
 	ls $(DIR_AGENTS) | awk '{print "DIR_AGENTS=$(DIR_AGENTS) node filter.js --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	mkdir -p ./tmp
-	./tmp.sh | sort -n | tee scores.txt | awk '{print "mv", $$2, "./tmp/"}' | tail -n 10 >> ./tmp-mv.sh
+	./tmp.sh | sort -n | tee scores.txt | awk '{print "mv", $$2, "./tmp/"}' | tail -n $(AGENT_COUNT) >> ./tmp-mv.sh
 	chmod a+x ./tmp-mv.sh
 	./tmp-mv.sh
 	rm ./tmp-mv.sh
