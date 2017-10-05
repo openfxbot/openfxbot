@@ -1,5 +1,6 @@
 'use strict';
 
+var _ = require('lodash');
 var nconf = require('nconf');
 nconf.argv();
 
@@ -8,121 +9,7 @@ var data = nconf.get('csv') || './report.csv';
 // Create the parser
 var parser = require('csv-parse')();
 
-var results = {
-	eurusd: {
-		hold: {
-			chance: 0.0,
-			odds: 0.0,
-			total: 0
-		},
-		long: {
-			chance: 0.0,
-			odds: 0.0,
-			total: 0
-		},
-		short: {
-			chance: 0.0,
-			odds: 0.0,
-			total: 0
-		}
-	},
-	usdchf: {
-		hold: {
-			chance: 0.0,
-			odds: 0.0,
-			total: 0
-		},
-		long: {
-			chance: 0.0,
-			odds: 0.0,
-			total: 0
-		},
-		short: {
-			chance: 0.0,
-			odds: 0.0,
-			total: 0
-		}
-	},
-	usdjpy: {
-		hold: {
-			chance: 0.0,
-			odds: 0.0,
-			total: 0
-		},
-		long: {
-			chance: 0.0,
-			odds: 0.0,
-			total: 0
-		},
-		short: {
-			chance: 0.0,
-			odds: 0.0,
-			total: 0
-		}
-	},
-	gbpusd: {
-		hold: {
-			chance: 0.0,
-			odds: 0.0,
-			total: 0
-		},
-		long: {
-			chance: 0.0,
-			odds: 0.0,
-			total: 0
-		},
-		short: {
-			chance: 0.0,
-			odds: 0.0,
-			total: 0
-		}
-	},
-	audusd: {
-		hold: {
-			chance: 0.0,
-			odds: 0.0,
-			total: 0
-		},
-		long: {
-			chance: 0.0,
-			odds: 0.0,
-			total: 0
-		},
-		short: {
-			chance: 0.0,
-			odds: 0.0,
-			total: 0
-		}
-	},
-	usdcad: {
-		hold: {
-			wager: 0.0,
-			total: 0
-		},
-		long: {
-			wager: 0.0,
-			total: 0
-		},
-		short: {
-			wager: 0.0,
-			total: 0
-		}
-	},
-	nzdusd: {
-		hold: {
-			wager: 0.0,
-			total: 0
-		},
-		long: {
-			wager: 0.0,
-			total: 0
-		},
-		short: {
-			wager: 0.0,
-			total: 0
-		}
-	}
-};
+var results = {};
 
 // Use the writable stream api
 parser.on('readable', function(){
@@ -140,6 +27,22 @@ parser.on('readable', function(){
 		odds = parseFloat(record[3]) || 0.0;
 		meetsCriterion = record[4] === 'true';
 
+		if(!results[currency]) {
+			results[currency] = {
+				hold: {
+					wager: 0.0,
+					total: 0
+				},
+				long: {
+					wager: 0.0,
+					total: 0
+				},
+				short: {
+					wager: 0.0,
+					total: 0
+				}
+			};
+		}
 		if(chance > 0.0 && odds > 0.0) {
 			if(meetsCriterion) {
 				results[currency][position]['chance'] = (results[currency][position]['chance'] || 0.0) + chance;
@@ -156,7 +59,7 @@ parser.on('error', function(err){
 });
 // When we are done, test that the parsed output matched what expected
 parser.on('finish', function(){
-	var currencies = ['eurusd', 'usdchf', 'usdjpy','gbpusd', 'audusd', 'usdcad', 'nzdusd'];
+	var currencies = _.keys(results);
 	var positions = ['hold', 'long', 'short'];
 	var currency, position;
 	var chance = 0.0;
@@ -235,25 +138,7 @@ lineReader.on('close', function() {
 })
 
 function report(netWager, totalWager, currency) {
-	var mappedCurrency = {
-		usdchf: 'CHF',
-		usdjpy: 'JPY',
-		usdcad: 'CAD',
-		eurusd: 'EUR',
-		gbpusd: 'GBP',
-		audusd: 'AUD',
-		nzdusd: 'NZD'
-	}
-	var mappedAction = {
-		usdchf: -1.0,
-		usdjpy: -1.0,
-		usdcad: -1.0,
-		eurusd: 1.0,
-		gbpusd: 1.0,
-		audusd: 1.0,
-		nzdusd: 1.0
-	}
-
 	var action = (netWager > 0 ? 'BUY' : 'SELL') + ' ' + currency;
-	return (mappedAction[currency] * totalWager * netWager * 100.0) + ' ' +  mappedCurrency[currency] + ' - ' + action;
+
+	return (totalWager * netWager * 100.0) + ' ' +  currency + ' - ' + action;
 }
