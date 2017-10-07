@@ -10,6 +10,7 @@ var data = nconf.get('csv') || './report.csv';
 var parser = require('csv-parse')();
 
 var results = {};
+var wagers = [];
 var rankings = {};
 
 // Use the writable stream api
@@ -109,8 +110,12 @@ parser.on('finish', function(){
 		rankings[pair.base] = (rankings[pair.base] || 0.0) + multiplier;
 		rankings[pair.other] = (rankings[pair.other] || 0.0) - multiplier;
 
-		console.error(currency, ':', netWager);
+		wagers.push({currency: currency, wager: netWager});
 	}
+
+	_.each(_.reverse(_.sortBy(wagers, 'wager')), function(sortedResults) {
+		console.error(sortedResults.currency, ':', sortedResults.wager * 100.0);
+	});
 
 	console.error('========= REPORT =========');
 
