@@ -41,7 +41,7 @@ report:
 	$(MAKE) data CURRENCY=CADJPY
 	$(MAKE) data CURRENCY=CHFJPY
 	git checkout master
-	node parse.js | sort -rn
+	node parse.js | sort -rn | awk '{print $$2}'
 
 archive:
 	git checkout eurusd
