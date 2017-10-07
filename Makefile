@@ -194,3 +194,4 @@ update:
 	CURRENCY=NZDUSD node download.js > ./data.js
 	git commit -a -m 'fix: update data.js'
 	make push
+	git checkout master
