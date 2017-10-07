@@ -4,7 +4,7 @@ var format = 'YYYY-MM-DD'
 var now = process.env.REPORT_DATE
 	? moment(process.env.REPORT_DATE, format)
 	: moment();
-var past = moment(now.toDate()).subtract(10, 'years');
+var past = moment(now.toDate()).subtract(15, 'years');
 
 var formattedHour = now.format('HH');
 var formattedNow = now.format(format);
