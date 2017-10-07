@@ -162,7 +162,7 @@ filter:
 	mkdir -p ./tmp
 	echo "Score,Filename" > scores.csv
 	./tmp.sh | sort -n | tee scores.csv
-	node filter.js
+	node filter.js | xargs rm
 
 update:
 	git checkout eurusd
