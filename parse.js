@@ -140,5 +140,6 @@ lineReader.on('close', function() {
 function report(netWager, totalWager, currency) {
 	var action = (netWager > 0 ? 'BUY' : 'SELL') + ' ' + currency;
 
-	return (totalWager * netWager * 100.0) + ' ' +  currency + ' - ' + action;
+	// return (totalWager * netWager * 100.0) + ' ' +  currency + ' - ' + action;
+	return (netWager * 100.0) + ' ' +  currency + ' - ' + action;
 }
