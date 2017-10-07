@@ -45,6 +45,5 @@ compiler.js
 agents
 downloads
 .bak
-tmp-mv.sh
 tmp
-scores.txt
+scores.csv

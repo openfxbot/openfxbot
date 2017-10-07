@@ -157,12 +157,9 @@ data:
 	./tmp.sh | sort | tee -a report.csv
 
 filter:
-	ls $(DIR_AGENTS) | awk '{print "DIR_AGENTS=$(DIR_AGENTS) node filter.js --config-file=" $$1}' > ./tmp.sh
+	ls $(DIR_AGENTS) | awk '{print "DIR_AGENTS=$(DIR_AGENTS) node score.js --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	mkdir -p ./tmp
-	./tmp.sh | sort -n | tee scores.txt | awk '{print "mv", $$2, "./tmp/"}' | tail -n $(AGENT_COUNT) >> ./tmp-mv.sh
-	chmod a+x ./tmp-mv.sh
-	./tmp-mv.sh
-	rm ./tmp-mv.sh
-	rm -rf $(DIR_AGENTS)
-	mv ./tmp $(DIR_AGENTS)
+	echo "Score,Filename" > scores.csv
+	./tmp.sh | sort -n | tee scores.csv
+	node filter.js
