@@ -1,317 +1,121 @@
 # LOG
 
-## Week 2017-09-17
+## Week 2017-10-01
 
 ```
-{
-	"eurusd": {
-		"hold": {
-			"chance": 2.8612325945156,
-			"odds": 26.08284770784771,
-			"total": 7
-		},
-		"long": {
-			"chance": 11.955007009012451,
-			"odds": 65.4560657479775,
-			"total": 24
-		},
-		"short": {
-			"chance": 0.5127457567258296,
-			"odds": 2.0714285714285716,
-			"total": 1
-		}
-	},
-	"usdchf": {
-		"hold": {
-			"chance": 2.461257891816813,
-			"odds": 22.020634920634922,
-			"total": 6
-		},
-		"long": {
-			"chance": 2.5846533709846367,
-			"odds": 14.263636363636364,
-			"total": 5
-		},
-		"short": {
-			"chance": 6.259298065679534,
-			"odds": 32.50847347097346,
-			"total": 12
-		}
-	},
-	"usdjpy": {
-		"hold": {
-			"chance": 0.5396983698161516,
-			"odds": 13.2,
-			"total": 2
-		},
-		"long": {
-			"chance": 3.602361855216506,
-			"odds": 32.55714285714286,
-			"total": 9
-		},
-		"short": {
-			"chance": 2.2600368106978017,
-			"odds": 15.202651515151514,
-			"total": 5
-		}
-	},
-	"gbpusd": {
-		"hold": {
-			"chance": 1.813195136208802,
-			"odds": 13.682539682539684,
-			"total": 4
-		},
-		"long": {
-			"chance": 2.522498148750992,
-			"odds": 13.665367965367965,
-			"total": 5
-		},
-		"short": {
-			"chance": 5.248149405785178,
-			"odds": 33.04636752136752,
-			"total": 11
-		}
-	},
-	"audusd": {
-		"hold": {
-			"chance": 1.089430066791831,
-			"odds": 14.666666666666666,
-			"total": 3
-		},
-		"long": {
-			"chance": 3.4216154782126837,
-			"odds": 16.686799719887954,
-			"total": 7
-		},
-		"short": {
-			"chance": 3.6763037506882,
-			"odds": 23.16038406038406,
-			"total": 8
-		}
-	},
-	"usdcad": {
-		"hold": {
-			"wager": 0,
-			"total": 0
-		},
-		"long": {
-			"wager": 0,
-			"total": 1,
-			"chance": 0.4433330655212054,
-			"odds": 3.4444444444444446
-		},
-		"short": {
-			"wager": 0,
-			"total": 2,
-			"chance": 0.9535705241039761,
-			"odds": 6.916666666666666
-		}
-	},
-	"nzdusd": {
-		"hold": {
-			"wager": 0,
-			"total": 0
-		},
-		"long": {
-			"wager": 0,
-			"total": 3,
-			"chance": 1.414920349295274,
-			"odds": 6.811904761904762
-		},
-		"short": {
-			"wager": 0,
-			"total": 0
-		}
-	}
-}
-------- eurusd -------
-hold : 19.186335298029793%
-long : 20.75769060903617%
-short : 5.7975129669937235%
-------- usdchf -------
-hold : 18.932314034767746%
-long : 25.619649442098023%
-short : 24.168963298366887%
-------- usdjpy -------
-hold : 13.94651107845179%
-long : 17.113285277531283%
-short : 18.345333133362736%
-------- gbpusd -------
-hold : 22.744844566065055%
-long : 21.859118810633532%
-short : 21.620660933992358%
-------- audusd -------
-hold : 19.93802184651482%
-long : 11.939387970536258%
-short : 17.434095587840826%
-------- usdcad -------
-long : 21.560568323442574%
-short : 26.39521483104239%
-------- nzdusd -------
-long : 5.581659782089926%
-========= REPORT =========
-16.53153295304883 EUR - BUY eurusd
-5.630869910742398 JPY - SELL usdjpy
-5.581659782089926 NZD - BUY nzdusd
-4.834646507599816 CAD - SELL usdcad
--2.9907813586305734 AUD - SELL audusd
--8.138021551061419 CHF - BUY usdchf
+1.693021844644442 eurcad - BUY eurcad
+1.624824751387256 eurgbp - BUY eurgbp
+1.1281168006269129 usdjpy - BUY usdjpy
+0.8158382534467651 nzdjpy - BUY nzdjpy
+0.7864077642334781 eurusd - BUY eurusd
+0.6973946057306643 cadjpy - BUY cadjpy
+0.5787224833590761 chfjpy - BUY chfjpy
+0.4621947412132431 usdcad - BUY usdcad
+0.38005612910818576 nzdchf - BUY nzdchf
+0.3506674849670474 euraud - BUY euraud
+0.30837649764138053 gbpjpy - BUY gbpjpy
+0.2835676650850477 eurjpy - BUY eurjpy
+0.09758773135691501 eurnzd - BUY eurnzd
+-0.22386158600006478 usdchf - SELL usdchf
+-0.35536698120996674 gbpchf - SELL gbpchf
+-0.42135217883615284 audchf - SELL audchf
+-0.4459882831298152 cadchf - SELL cadchf
+-0.5664068410752888 gbpusd - SELL gbpusd
+-0.5859751269174199 gbpnzd - SELL gbpnzd
+-0.6190550014172783 nzdcad - SELL nzdcad
+-0.7131171953161521 audusd - SELL audusd
+-0.7849825621305295 gbpcad - SELL gbpcad
+-1.0024906502660322 eurchf - SELL eurchf
+-1.7369168275416835 gbpaud - SELL gbpaud
+-1.872003960308475 nzdusd - SELL nzdusd
+```
+
+## Week 2017-09-24
+
+Actual: CHF, **USD**, JPY, GBP, EUR, CAD, NZD, AUD
+
+```
+0.989912618159402 gbpcad - BUY gbpcad
+0.9758007934524402 nzdjpy - BUY nzdjpy
+0.8093490472972296 nzdcad - BUY nzdcad
+0.7143109660922934 eurusd - BUY eurusd
+0.5584298796380502 gbpnzd - BUY gbpnzd
+0.5247902722827102 audnzd - BUY audnzd
+0.5118045757817605 euraud - BUY euraud
+0.4784185180195227 eurnzd - BUY eurnzd
+0.4263186831018386 gbpaud - BUY gbpaud
+0.42346626168014495 gbpusd - BUY gbpusd
+0.3961160941135662 eurgbp - BUY eurgbp
+0.07877955787090311 gbpjpy - BUY gbpjpy
+-0.030652630088319276 eurchf - SELL eurchf
+-0.13921282518286748 chfjpy - SELL chfjpy
+-0.1617017455072304 gbpchf - SELL gbpchf
+-0.1632223542683862 audcad - SELL audcad
+-0.18377619876219756 audjpy - SELL audjpy
+-0.2182692103015897 cadchf - SELL cadchf
+-0.21863810938368722 eurjpy - SELL eurjpy
+-0.6339440502256652 usdchf - SELL usdchf
+-1.1329446428066632 usdjpy - SELL usdjpy
+-1.3900196652258712 audchf - SELL audchf
+-1.5787279811908077 cadjpy - SELL cadjpy
+```
+
+## Week 2017-09-17
+
+Actual: NZD, **USD**, EUR, AUD, GBP, CHF, JPY, CAD
+
+Expected:
+```
+1.1646471264407992 gbpnzd - BUY gbpnzd
+1.1031522111037604 gbpchf - BUY gbpchf
+1.0758500045233228 gbpaud - BUY gbpaud
+1.0661516818813261 eurusd - BUY eurusd
+0.9996434411571873 eurcad - BUY eurcad
+0.9414741031649372 usdjpy - BUY usdjpy
+0.7849847751499263 cadchf - BUY cadchf
+0.7527779774829965 audjpy - BUY audjpy
+0.6853946314255801 gbpusd - BUY gbpusd
+0.6500666390042346 audnzd - BUY audnzd
+0.6324000754200431 usdchf - BUY usdchf
+0.5951608240553578 nzdjpy - BUY nzdjpy
+0.5155171980554117 euraud - BUY euraud
+0.4768599685031476 nzdcad - BUY nzdcad
+0.3124277683095778 eurchf - BUY eurchf
+0.30914793386992584 eurjpy - BUY eurjpy
+0.2837080229440275 audusd - BUY audusd
+0.2741028987219155 usdcad - BUY usdcad
+0.03553473588345286 audchf - BUY audchf
+-0.08133052740790724 gbpcad - SELL gbpcad
+-0.3650275249659718 nzdusd - SELL nzdusd
+-0.39034162996138 chfjpy - SELL chfjpy
+-0.5788533832681705 nzdchf - SELL nzdchf
 ```
 
 ## Week 2017-09-10
 
+Expected:
 ```
-{
-	"eurusd": {
-		"hold": {
-			"chance": 2.503918089458441,
-			"odds": 24.669696969696968,
-			"total": 6
-		},
-		"long": {
-			"chance": 5.749107245520484,
-			"odds": 30.762004662004664,
-			"total": 12
-		},
-		"short": {
-			"chance": 7.075960025274952,
-			"odds": 38.178640395552165,
-			"total": 14
-		}
-	},
-	"usdchf": {
-		"hold": {
-			"chance": 1.4697143292576118,
-			"odds": 8.95887445887446,
-			"total": 3
-		},
-		"long": {
-			"chance": 3.7682364554946135,
-			"odds": 25.256998556998553,
-			"total": 8
-		},
-		"short": {
-			"chance": 6.067258543728759,
-			"odds": 34.57687173937173,
-			"total": 12
-		}
-	},
-	"usdjpy": {
-		"hold": {
-			"chance": 1.6621456813407325,
-			"odds": 12.404761904761905,
-			"total": 4
-		},
-		"long": {
-			"chance": 3.471562165700221,
-			"odds": 39.255032467532466,
-			"total": 9
-		},
-		"short": {
-			"chance": 1.2683891886895058,
-			"odds": 9.3,
-			"total": 3
-		}
-	},
-	"gbpusd": {
-		"hold": {
-			"chance": 3.483404102641978,
-			"odds": 27.371428571428574,
-			"total": 8
-		},
-		"long": {
-			"chance": 3.131423275825329,
-			"odds": 16.143589743589743,
-			"total": 6
-		},
-		"short": {
-			"chance": 2.9690153122776635,
-			"odds": 16.87925685425685,
-			"total": 6
-		}
-	},
-	"audusd": {
-		"hold": {
-			"chance": 1.4406911843191021,
-			"odds": 18.314285714285713,
-			"total": 4
-		},
-		"long": {
-			"chance": 4.069968641959867,
-			"odds": 23.548771081859318,
-			"total": 9
-		},
-		"short": {
-			"chance": 2.676689469413745,
-			"odds": 12.65079365079365,
-			"total": 5
-		}
-	},
-	"usdcad": {
-		"hold": {
-			"wager": 0,
-			"total": 1,
-			"chance": 0.5360577204936372,
-			"odds": 4.5
-		},
-		"long": {
-			"wager": 0,
-			"total": 0
-		},
-		"short": {
-			"wager": 0,
-			"total": 1,
-			"chance": 0.41751280361033893,
-			"odds": 2.4166666666666665
-		}
-	},
-	"nzdusd": {
-		"hold": {
-			"wager": 0,
-			"total": 0
-		},
-		"long": {
-			"wager": 0,
-			"total": 2,
-			"chance": 0.8759645353619114,
-			"odds": 4.678571428571429
-		},
-		"short": {
-			"wager": 0,
-			"total": 0
-		}
-	}
-}
-------- eurusd -------
-hold : 23.005997852840903%
-long : 14.592463368088898%
-short : 21.905560340273116%
-------- usdchf -------
-hold : 23.309693774031427%
-long : 22.58094202758544%
-short : 24.28252728262584%
-------- usdjpy -------
-hold : 13.73781161320975%
-long : 20.300125308607036%
-short : 14.793753729166164%
-------- gbpusd -------
-hold : 20.22679075094055%
-long : 23.910688172380656%
-short : 21.623370433666857%
-------- audusd -------
-hold : 18.137876704019185%
-long : 11.335634678042783%
-short : 23.166867515467%
-------- usdcad -------
-hold : 40.35027834918192%
-short : 0.6345370864695776%
-------- nzdusd -------
-long : 1.8342360882736053%
-========= REPORT =========
-5.97121516015391 GBP - BUY gbpusd
-2.674418763634809 CHF - SELL usdchf
-1.8342360882736053 NZD - BUY nzdusd
--6.212659459616432 EUR - SELL eurusd
--12.06868527483816 JPY - BUY usdjpy
--16.86022364887203 AUD - SELL audusd
+2.259062134250657 eurjpy - BUY eurjpy
+2.224822005148367 nzdusd - BUY nzdusd
+2.1254489309982265 audnzd - BUY audnzd
+1.9851310723926092 cadjpy - BUY cadjpy
+1.7605618260500122 usdjpy - BUY usdjpy
+1.5001884018561495 audjpy - BUY audjpy
+1.230086755175173 nzdcad - BUY nzdcad
+1.1269947203280692 gbpjpy - BUY gbpjpy
+1.0275057190480443 audchf - BUY audchf
+0.900237824759676 audcad - BUY audcad
+0.8869694233277967 gbpnzd - BUY gbpnzd
+0.6096792840540474 nzdjpy - BUY nzdjpy
+0.5660331469471627 usdcad - BUY usdcad
+0.5191934501879767 gbpcad - BUY gbpcad
+0.26210925880964075 eurcad - BUY eurcad
+0.1737673713674217 nzdchf - BUY nzdchf
+-0.12150867804803353 eurnzd - SELL eurnzd
+-0.21736881659329702 audusd - SELL audusd
+-0.37851290683647426 eurgbp - SELL eurgbp
+-0.4988554027439103 gbpchf - SELL gbpchf
+-0.6372294361221369 euraud - SELL euraud
+-0.6702584103614595 gbpusd - SELL gbpusd
+-0.9582835134310933 chfjpy - SELL chfjpy
 ```
