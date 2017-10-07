@@ -163,3 +163,34 @@ filter:
 	echo "Score,Filename" > scores.csv
 	./tmp.sh | sort -n | tee scores.csv
 	node filter.js
+
+update:
+	git checkout eurusd
+	git pull
+	CURRENCY=EURUSD node download.js > ./data.js
+	git commit -a -m 'fix: update data.js'
+	git checkout usdchf
+	git pull
+	CURRENCY=USDCHF node download.js > ./data.js
+	git commit -a -m 'fix: update data.js'
+	git checkout usdjpy
+	git pull
+	CURRENCY=USDJPY node download.js > ./data.js
+	git commit -a -m 'fix: update data.js'
+	git checkout gbpusd
+	git pull
+	CURRENCY=GBPUSD node download.js > ./data.js
+	git commit -a -m 'fix: update data.js'
+	git checkout audusd
+	git pull
+	CURRENCY=AUDUSD node download.js > ./data.js
+	git commit -a -m 'fix: update data.js'
+	git checkout usdcad
+	git pull
+	CURRENCY=USDCAD node download.js > ./data.js
+	git commit -a -m 'fix: update data.js'
+	git checkout nzdusd
+	git pull
+	CURRENCY=NZDUSD node download.js > ./data.js
+	git commit -a -m 'fix: update data.js'
+	make push
