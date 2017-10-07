@@ -1,4 +1,5 @@
-DIR_AGENTS?=./neurons
+DIR_AGENTS?=./agents
+AGENT_COUNT?=12
 
 neuron:
 	node index.js --min-sensitivity=${MIN_SENSITIVITY} --max-sensitivity=${MAX_SENSITIVITY} --min-alpha=${MIN_ALPHA} --max-alpha=${MAX_ALPHA} --min-gamma=${MIN_GAMMA} --max-gamma=${MAX_GAMMA} --min-epsilon=${MIN_EPSILON} --max-epsilon=${MAX_EPSILON} --test-size=${TEST_SIZE} --min-states=${MIN_STATES} --output-file=${OUTPUT_FILENAME} | tee -a ./results.csv
@@ -11,35 +12,34 @@ neuron:
 report:
 	cp report.js compiler.js
 	echo '"Currency","Position","Probability","Odds","Meets Criterion","File"' > report.csv
-	git fetch origin
-	git checkout origin/eurusd
-	ls $(DIR_AGENTS) | awk '{print "node compiler.js --currency=eurusd --config-file=" $$1}' > ./tmp.sh
-	chmod a+x ./tmp.sh
-	./tmp.sh | sort | tee -a report.csv
-	git checkout origin/usdjpy
-	ls $(DIR_AGENTS) | awk '{print "node compiler.js --currency=usdjpy --config-file=" $$1}' > ./tmp.sh
-	chmod a+x ./tmp.sh
-	./tmp.sh | sort | tee -a report.csv
-	git checkout origin/usdchf
-	ls $(DIR_AGENTS) | awk '{print "node compiler.js --currency=usdchf --config-file=" $$1}' > ./tmp.sh
-	chmod a+x ./tmp.sh
-	./tmp.sh | sort | tee -a report.csv
-	git checkout origin/gbpusd
-	ls $(DIR_AGENTS) | awk '{print "node compiler.js --currency=gbpusd --config-file=" $$1}' > ./tmp.sh
-	chmod a+x ./tmp.sh
-	./tmp.sh | sort | tee -a report.csv
-	git checkout origin/audusd
-	ls $(DIR_AGENTS) | awk '{print "node compiler.js --currency=audusd --config-file=" $$1}' > ./tmp.sh
-	chmod a+x ./tmp.sh
-	./tmp.sh | sort | tee -a report.csv
-	git checkout origin/usdcad
-	ls $(DIR_AGENTS) | awk '{print "node compiler.js --currency=usdcad --config-file=" $$1}' > ./tmp.sh
-	chmod a+x ./tmp.sh
-	./tmp.sh | sort | tee -a report.csv
-	git checkout origin/nzdusd
-	ls $(DIR_AGENTS) | awk '{print "node compiler.js --currency=nzdusd --config-file=" $$1}' > ./tmp.sh
-	chmod a+x ./tmp.sh
-	./tmp.sh | sort | tee -a report.csv
+	$(MAKE) data CURRENCY=EURUSD
+	$(MAKE) data CURRENCY=GBPUSD
+	$(MAKE) data CURRENCY=NZDUSD
+	$(MAKE) data CURRENCY=AUDUSD
+	$(MAKE) data CURRENCY=USDCHF
+	$(MAKE) data CURRENCY=USDCAD
+	$(MAKE) data CURRENCY=USDJPY
+	$(MAKE) data CURRENCY=EURGBP
+	$(MAKE) data CURRENCY=EURAUD
+	$(MAKE) data CURRENCY=EURNZD
+	$(MAKE) data CURRENCY=EURCAD
+	$(MAKE) data CURRENCY=EURCHF
+	$(MAKE) data CURRENCY=EURJPY
+	$(MAKE) data CURRENCY=GBPAUD
+	$(MAKE) data CURRENCY=GBPNZD
+	$(MAKE) data CURRENCY=GBPCAD
+	$(MAKE) data CURRENCY=GBPCHF
+	$(MAKE) data CURRENCY=GBPJPY
+	$(MAKE) data CURRENCY=AUDNZD
+	$(MAKE) data CURRENCY=AUDCAD
+	$(MAKE) data CURRENCY=AUDCHF
+	$(MAKE) data CURRENCY=AUDJPY
+	$(MAKE) data CURRENCY=NZDCAD
+	$(MAKE) data CURRENCY=NZDCHF
+	$(MAKE) data CURRENCY=NZDJPY
+	$(MAKE) data CURRENCY=CADCHF
+	$(MAKE) data CURRENCY=CADJPY
+	$(MAKE) data CURRENCY=CHFJPY
 	git checkout master
 	node parse.js | sort -rn
 
@@ -127,40 +127,6 @@ push:
 backtest:
 	echo 'TBD'
 
-report-local:
-	cp report.js compiler.js
-	echo '"Currency","Position","Probability","Odds","Meets Criterion","File"' > report.csv
-	git checkout eurusd
-	ls agents | awk '{print "node compiler.js --currency=eurusd --config-file=" $$1}' > ./tmp.sh
-	chmod a+x ./tmp.sh
-	./tmp.sh | sort | tee -a report.csv
-	git checkout usdjpy
-	ls agents | awk '{print "node compiler.js --currency=usdjpy --config-file=" $$1}' > ./tmp.sh
-	chmod a+x ./tmp.sh
-	./tmp.sh | sort | tee -a report.csv
-	git checkout usdchf
-	ls agents | awk '{print "node compiler.js --currency=usdchf --config-file=" $$1}' > ./tmp.sh
-	chmod a+x ./tmp.sh
-	./tmp.sh | sort | tee -a report.csv
-	git checkout gbpusd
-	ls agents | awk '{print "node compiler.js --currency=gbpusd --config-file=" $$1}' > ./tmp.sh
-	chmod a+x ./tmp.sh
-	./tmp.sh | sort | tee -a report.csv
-	git checkout audusd
-	ls agents | awk '{print "node compiler.js --currency=audusd --config-file=" $$1}' > ./tmp.sh
-	chmod a+x ./tmp.sh
-	./tmp.sh | sort | tee -a report.csv
-	git checkout usdcad
-	ls agents | awk '{print "node compiler.js --currency=usdcad --config-file=" $$1}' > ./tmp.sh
-	chmod a+x ./tmp.sh
-	./tmp.sh | sort | tee -a report.csv
-	git checkout nzdusd
-	ls agents | awk '{print "node compiler.js --currency=nzdusd --config-file=" $$1}' > ./tmp.sh
-	chmod a+x ./tmp.sh
-	./tmp.sh | sort | tee -a report.csv
-	git checkout master
-	node parse.js | sort -rn
-
 compile:
 	git fetch origin
 	mkdir -p ./agents
@@ -179,5 +145,52 @@ compile:
 	git checkout origin/usdcad
 	ls ./neurons | awk '{print "./neurons/" $$1, "./agents/usdcad-" $$1}' | xargs -n 2 cp
 	git checkout master
+	make filter DIR_AGENTS='./agents'
 	make report DIR_AGENTS='./agents'
-	git checkout master
+
+data:
+	mkdir -p ./downloads
+
+	CURRENCY=${CURRENCY} node download.js > ./downloads/${CURRENCY}.js
+	ls $(DIR_AGENTS) | awk '{print "DIR_AGENTS=$(DIR_AGENTS) node compiler.js --data=./downloads/${CURRENCY}.js --currency=${CURRENCY} --config-file=" $$1}' > ./tmp.sh
+	chmod a+x ./tmp.sh
+	./tmp.sh | sort | tee -a report.csv
+
+filter:
+	ls $(DIR_AGENTS) | awk '{print "DIR_AGENTS=$(DIR_AGENTS) node score.js --config-file=" $$1}' > ./tmp.sh
+	chmod a+x ./tmp.sh
+	mkdir -p ./tmp
+	echo "Score,Filename" > scores.csv
+	./tmp.sh | sort -n | tee scores.csv
+	node filter.js
+
+update:
+	git checkout eurusd
+	git pull
+	CURRENCY=EURUSD node download.js > ./data.js
+	git commit -a -m 'fix: update data.js'
+	git checkout usdchf
+	git pull
+	CURRENCY=USDCHF node download.js > ./data.js
+	git commit -a -m 'fix: update data.js'
+	git checkout usdjpy
+	git pull
+	CURRENCY=USDJPY node download.js > ./data.js
+	git commit -a -m 'fix: update data.js'
+	git checkout gbpusd
+	git pull
+	CURRENCY=GBPUSD node download.js > ./data.js
+	git commit -a -m 'fix: update data.js'
+	git checkout audusd
+	git pull
+	CURRENCY=AUDUSD node download.js > ./data.js
+	git commit -a -m 'fix: update data.js'
+	git checkout usdcad
+	git pull
+	CURRENCY=USDCAD node download.js > ./data.js
+	git commit -a -m 'fix: update data.js'
+	git checkout nzdusd
+	git pull
+	CURRENCY=NZDUSD node download.js > ./data.js
+	git commit -a -m 'fix: update data.js'
+	make push
