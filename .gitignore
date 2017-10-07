@@ -43,3 +43,7 @@ tmp.sh
 report.csv
 compiler.js
 agents
+downloads
+.bak
+tmp
+scores.csv
