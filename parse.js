@@ -10,6 +10,7 @@ var data = nconf.get('csv') || './report.csv';
 var parser = require('csv-parse')();
 
 var results = {};
+var rankings = {};
 
 // Use the writable stream api
 parser.on('readable', function(){
@@ -69,12 +70,14 @@ parser.on('finish', function(){
 	var wager;
 	var netWager;
 	var total;
+	var pair;
+	var multiplier;
 
 	console.error('results:', JSON.stringify(results, null, '\t'));
 
 	for(var i = 0; i< currencies.length; i++) {
 		currency = currencies[i];
-		console.error('-------', currency,'-------');
+		// console.error('-------', currency,'-------');
 
 		total = 0.0;
 		for(var j=0; j < positions.length; j++) {
@@ -90,7 +93,7 @@ parser.on('finish', function(){
 				wager = chance - ((1.0 - chance) / odds);
 				results[currency][position]['wager'] = wager;
 
-				console.error(position, ':', (wager * 100.0) + '%');
+				// console.error(position, ':', (wager * 100.0) + '%');
 			} else {
 				results[currency][position]['wager'] = 0.0;
 			}
@@ -99,11 +102,21 @@ parser.on('finish', function(){
 		}
 
 		netWager =  results[currency]['long']['wager'] - results[currency]['short']['wager'];
+		multiplier = netWager > 0.0 ? 1.0 : -1.0;
 
-		console.log(report(netWager, currency));
+		pair = getPair(currency);
+
+		rankings[pair.base] = (rankings[pair.base] || 0.0) + multiplier;
+		rankings[pair.other] = (rankings[pair.other] || 0.0) - multiplier;
+
+		console.error(currency, ':', netWager);
 	}
 
 	console.error('========= REPORT =========');
+
+	_.each(_.keys(rankings), function(key) {
+		console.log(rankings[key], key);
+	});
 });
 
 var lineReader = require('readline').createInterface({
@@ -123,8 +136,14 @@ lineReader.on('close', function() {
 	parser.end();
 })
 
-function report(netWager, currency) {
-	var action = (netWager > 0 ? 'BUY' : 'SELL') + ' ' + currency;
+function getPair(currency) {
+	var base = currency.substring(0, 3);
+	var other = currency.substring(3, 6);
 
-	return (netWager * 100.0) + ' ' +  currency + ' - ' + action;
+	var pair = {
+		base: base,
+		other: other
+	};
+
+	return pair;
 }
