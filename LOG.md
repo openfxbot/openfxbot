@@ -2,6 +2,8 @@
 
 ## Week 2017-10-01
 
+Actual: **USD**, JPY, CAD, EUR, AUD, CHF, NZD, GBP
+
 ```
 1.693021844644442 eurcad - BUY eurcad
 1.624824751387256 eurgbp - BUY eurgbp
