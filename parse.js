@@ -11,9 +11,9 @@ var parser = require('csv-parse')();
 
 var results = {};
 var wagers = [];
-var rankings = {};
-var rankings2 = {};
-var rankingsTotal = {usd:0, gbp:0, aud:0, eur:0, nzd:0, chf:0, cad:0, jpy:0};
+var rankBase = {};
+var rankOther = {};
+var rankTotal = {usd:0, gbp:0, aud:0, eur:0, nzd:0, chf:0, cad:0, jpy:0};
 
 // Use the writable stream api
 parser.on('readable', function(){
@@ -109,10 +109,10 @@ parser.on('finish', function(){
 
 		pair = getPair(currency);
 
-		rankings[pair.base] = (rankings[pair.base] || 0.0) + multiplier;
-		rankings2[pair.other] = (rankings[pair.other] || 0.0) - multiplier;
-		rankingsTotal[pair.base]++;
-		rankingsTotal[pair.other]++;
+		rankBase[pair.base] = (rankBase[pair.base] || 0.0) + multiplier;
+		rankOther[pair.other] = (rankBase[pair.other] || 0.0) - multiplier;
+		rankTotal[pair.base]++;
+		rankTotal[pair.other]++;
 
 		if(results[currency]['hold']['wager'] < results[currency][netWager > 0.0 ? 'long' : 'short']['wager'])
 		wagers.push({currency: currency, wager: netWager});
@@ -124,8 +124,9 @@ parser.on('finish', function(){
 
 	console.error('========= REPORT =========');
 
-	_.each(_.keys(rankings), function(key) {
-		console.log(((rankings[key] || 0.0) + (rankings2[key] || 0.0)) / rankingsTotal[key], key);
+	var union = _.union(_.keys(rankBase), _.keys(rankOther));
+	_.each(union, function(key) {
+		console.log(((rankBase[key] || 0.0) + (rankOther[key] || 0.0)) / rankTotal[key], key);
 	});
 });
 
