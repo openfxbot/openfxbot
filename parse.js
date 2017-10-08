@@ -108,7 +108,7 @@ parser.on('finish', function(){
 		pair = getPair(currency);
 
 		rankings[pair.base] = (rankings[pair.base] || 0.0) + multiplier;
-		rankings[pair.other] = (rankings[pair.other] || 0.0) - multiplier;
+		//rankings[pair.other] = (rankings[pair.other] || 0.0) - multiplier;
 
 		if(results[currency]['hold']['wager'] < results[currency][netWager > 0.0 ? 'long' : 'short']['wager'])
 		wagers.push({currency: currency, wager: netWager});
