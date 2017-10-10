@@ -109,8 +109,8 @@ parser.on('finish', function(){
 
 		pair = getPair(currency);
 
-		rankBase[pair.base] = (rankBase[pair.base] || 0.0) + multiplier;
-		rankOther[pair.other] = (rankBase[pair.other] || 0.0) - multiplier;
+		rankBase[pair.base] = (rankBase[pair.base] || 0.0) + netWager;
+		rankOther[pair.other] = (rankOther[pair.other] || 0.0) - netWager;
 		rankTotal[pair.base]++;
 		rankTotal[pair.other]++;
 
@@ -126,7 +126,7 @@ parser.on('finish', function(){
 
 	var union = _.union(_.keys(rankBase), _.keys(rankOther));
 	_.each(union, function(key) {
-		console.log(((rankBase[key] || 0.0) + (rankOther[key] || 0.0)) / rankTotal[key], key);
+		console.log( 100.0 * ((rankBase[key] || 0.0) + (rankOther[key] || 0.0)) / rankTotal[key], key);
 	});
 });
 
