@@ -12,7 +12,6 @@ var parser = require('csv-parse')();
 var results = {};
 var wagers = [];
 var rankBase = {};
-var rankOther = {};
 var rankTotal = {usd:0, gbp:0, aud:0, eur:0, nzd:0, chf:0, cad:0, jpy:0};
 
 // Use the writable stream api
@@ -110,7 +109,7 @@ parser.on('finish', function(){
 		pair = getPair(currency);
 
 		rankBase[pair.base] = (rankBase[pair.base] || 0.0) + netWager;
-		rankOther[pair.other] = (rankOther[pair.other] || 0.0) - netWager;
+		rankBase[pair.other] = (rankBase[pair.other] || 0.0) - netWager;
 		rankTotal[pair.base]++;
 		rankTotal[pair.other]++;
 
@@ -122,11 +121,19 @@ parser.on('finish', function(){
 		console.error(sortedResults.currency, ':', sortedResults.wager * 100.0);
 	});
 
+	var rankings = {};
+	_.each(_.keys(rankBase), function(key) {
+		rankings[key] = 100.0 * (rankBase[key] || 0.0) / rankTotal[key];
+	});
+
 	console.error('========= REPORT =========');
 
-	var union = _.union(_.keys(rankBase), _.keys(rankOther));
-	_.each(union, function(key) {
-		console.log( 100.0 * ((rankBase[key] || 0.0) + (rankOther[key] || 0.0)) / rankTotal[key], key);
+	_.each(_.keys(results), function (currencyPair) {
+		pair = getPair(currencyPair);
+
+		var sum = rankings[pair.base] - rankings[pair.other];
+
+		console.log(sum, currencyPair);
 	});
 });
 
