@@ -10,6 +10,9 @@ var data = nconf.get('csv') || './report.csv';
 var parser = require('csv-parse')();
 
 var results = {};
+var wagers = [];
+var rankBase = {};
+var rankTotal = {usd:0, gbp:0, aud:0, eur:0, nzd:0, chf:0, cad:0, jpy:0};
 
 // Use the writable stream api
 parser.on('readable', function(){
@@ -20,6 +23,7 @@ parser.on('readable', function(){
 	var meetsCriterion;
 	var currency;
 	var position;
+
   while(record = parser.read()){
 	  currency = record[0].toLowerCase();
 	  position = record[1];
@@ -43,6 +47,7 @@ parser.on('readable', function(){
 				}
 			};
 		}
+
 		if(chance > 0.0 && odds > 0.0) {
 			if(meetsCriterion) {
 				results[currency][position]['chance'] = (results[currency][position]['chance'] || 0.0) + chance;
@@ -66,16 +71,15 @@ parser.on('finish', function(){
 	var odds = 0.0;
 	var wager;
 	var netWager;
-	var totalWager;
-	var holdWager;
-	var action;
 	var total;
+	var pair;
+	var multiplier;
 
 	console.error('results:', JSON.stringify(results, null, '\t'));
 
 	for(var i = 0; i< currencies.length; i++) {
 		currency = currencies[i];
-		console.error('-------', currency,'-------');
+		// console.error('-------', currency,'-------');
 
 		total = 0.0;
 		for(var j=0; j < positions.length; j++) {
@@ -91,7 +95,7 @@ parser.on('finish', function(){
 				wager = chance - ((1.0 - chance) / odds);
 				results[currency][position]['wager'] = wager;
 
-				console.error(position, ':', (wager * 100.0) + '%');
+				// console.error(position, ':', (wager * 100.0) + '%');
 			} else {
 				results[currency][position]['wager'] = 0.0;
 			}
@@ -100,24 +104,37 @@ parser.on('finish', function(){
 		}
 
 		netWager =  results[currency]['long']['wager'] - results[currency]['short']['wager'];
-		action = netWager > 0.0
-					? 1.0
-					: -1.0;
+		multiplier = netWager > 0.0 ? 1.0 : -1.0;
 
-		holdWager = 0.0; // reset holdWager
-		if(results[currency]['hold']['wager'] > 0.0) {
-			holdWager = action > 0.0
-				? results[currency]['hold']['wager'] - results[currency]['long']['wager']
-				: results[currency]['short']['wager'] - results[currency]['hold']['wager'];
-		}
+		pair = getPair(currency);
 
-		if(results[currency][action > 0.0 ? 'long' : 'short']['wager'] > results[currency]['hold']['wager']) {
-			totalWager = results[currency][action > 0.0 ? 'long' : 'short']['wager'] / total;
-			console.log(report(netWager, totalWager, currency));
-		}
+		rankBase[pair.base] = (rankBase[pair.base] || 0.0) + netWager;
+		rankBase[pair.other] = (rankBase[pair.other] || 0.0) - netWager;
+		rankTotal[pair.base]++;
+		rankTotal[pair.other]++;
+
+		if(results[currency]['hold']['wager'] < results[currency][netWager > 0.0 ? 'long' : 'short']['wager'])
+		wagers.push({currency: currency, wager: netWager});
 	}
 
+	_.each(_.reverse(_.sortBy(wagers, 'wager')), function(sortedResults) {
+		console.error(sortedResults.currency, ':', sortedResults.wager * 100.0);
+	});
+
+	var rankings = {};
+	_.each(_.keys(rankBase), function(key) {
+		rankings[key] = 100.0 * (rankBase[key] || 0.0) / rankTotal[key];
+	});
+
 	console.error('========= REPORT =========');
+
+	_.each(_.keys(results), function (currencyPair) {
+		pair = getPair(currencyPair);
+
+		var sum = rankings[pair.base] - rankings[pair.other];
+
+		console.log(sum, currencyPair);
+	});
 });
 
 var lineReader = require('readline').createInterface({
@@ -137,9 +154,14 @@ lineReader.on('close', function() {
 	parser.end();
 })
 
-function report(netWager, totalWager, currency) {
-	var action = (netWager > 0 ? 'BUY' : 'SELL') + ' ' + currency;
+function getPair(currency) {
+	var base = currency.substring(0, 3);
+	var other = currency.substring(3, 6);
 
-	// return (totalWager * netWager * 100.0) + ' ' +  currency + ' - ' + action;
-	return (netWager * 100.0) + ' ' +  currency + ' - ' + action;
+	var pair = {
+		base: base,
+		other: other
+	};
+
+	return pair;
 }
