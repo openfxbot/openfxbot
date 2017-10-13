@@ -41,7 +41,7 @@ parser.on('finish', function(){
 	var average = sum / count;
 
 	_.each(_.keys(results), function(filename) {
-		if(results[filename] < 0.0) {
+		if(results[filename] < average) {
 			console.log(filename);
 		}
 	});
