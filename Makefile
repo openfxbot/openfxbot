@@ -14,34 +14,21 @@ report:
 	echo '"Currency","Position","Probability","Odds","Meets Criterion","File"' > report.csv
 	$(MAKE) data CURRENCY=EURUSD
 	$(MAKE) data CURRENCY=GBPUSD
-	$(MAKE) data CURRENCY=NZDUSD
 	$(MAKE) data CURRENCY=AUDUSD
 	$(MAKE) data CURRENCY=USDCHF
-	$(MAKE) data CURRENCY=USDCAD
 	$(MAKE) data CURRENCY=USDJPY
 	$(MAKE) data CURRENCY=EURGBP
 	$(MAKE) data CURRENCY=EURAUD
-	$(MAKE) data CURRENCY=EURNZD
-	$(MAKE) data CURRENCY=EURCAD
 	$(MAKE) data CURRENCY=EURCHF
 	$(MAKE) data CURRENCY=EURJPY
 	$(MAKE) data CURRENCY=GBPAUD
-	$(MAKE) data CURRENCY=GBPNZD
-	$(MAKE) data CURRENCY=GBPCAD
 	$(MAKE) data CURRENCY=GBPCHF
 	$(MAKE) data CURRENCY=GBPJPY
-	$(MAKE) data CURRENCY=AUDNZD
-	$(MAKE) data CURRENCY=AUDCAD
 	$(MAKE) data CURRENCY=AUDCHF
 	$(MAKE) data CURRENCY=AUDJPY
-	$(MAKE) data CURRENCY=NZDCAD
-	$(MAKE) data CURRENCY=NZDCHF
-	$(MAKE) data CURRENCY=NZDJPY
-	$(MAKE) data CURRENCY=CADCHF
-	$(MAKE) data CURRENCY=CADJPY
 	$(MAKE) data CURRENCY=CHFJPY
 	git checkout master
-	node parse.js | sort -rn
+	node parse.js | sort -rn | awk '{print $$2}'
 
 archive:
 	git checkout eurusd
@@ -79,20 +66,6 @@ archive:
 	git add -A ./neurons
 	git add ./archives
 	-git commit -m 'fix: archive'
-	git checkout usdcad
-	git pull
-	-mkdir -p ./archives
-	grep -o '"meetsCriterion":false' ./neurons/* | cut -f 1 -d : | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
-	git add -A ./neurons
-	git add ./archives
-	-git commit -m 'fix: archive'
-	git checkout nzdusd
-	git pull
-	-mkdir -p ./archives
-	grep -o '"meetsCriterion":false' ./neurons/* | cut -f 1 -d : | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
-	git add -A ./neurons
-	git add ./archives
-	-git commit -m 'fix: archive'
 	git checkout master
 	make push
 
@@ -112,17 +85,11 @@ merge:
 	git checkout audusd
 	git pull
 	git merge master
-	git checkout usdcad
-	git pull
-	git merge master
-	git checkout nzdusd
-	git pull
-	git merge master
 	git checkout master
 	make push
 
 push:
-	git push origin eurusd:eurusd && git push origin usdchf:usdchf && git push origin usdjpy:usdjpy && git push origin gbpusd:gbpusd && git push origin audusd:audusd && git push origin usdcad:usdcad && git push origin nzdusd:nzdusd
+	git push origin eurusd:eurusd && git push origin usdchf:usdchf && git push origin usdjpy:usdjpy && git push origin gbpusd:gbpusd && git push origin audusd:audusd
 
 backtest:
 	echo 'TBD'
@@ -132,18 +99,19 @@ compile:
 	mkdir -p ./agents
 	git checkout origin/eurusd
 	ls ./neurons | awk '{print "./neurons/" $$1, "./agents/eurusd-" $$1}' | xargs -n 2 cp
+	ls ./archives | awk '{print "./archives/" $$1, "./agents/eurusd-" $$1}' | xargs -n 2 cp
 	git checkout origin/audusd
 	ls ./neurons | awk '{print "./neurons/" $$1, "./agents/audusd-" $$1}' | xargs -n 2 cp
+	ls ./archives | awk '{print "./archives/" $$1, "./agents/audusd-" $$1}' | xargs -n 2 cp
 	git checkout origin/gbpusd
 	ls ./neurons | awk '{print "./neurons/" $$1, "./agents/gbpusd-" $$1}' | xargs -n 2 cp
-	git checkout origin/nzdusd
-	ls ./neurons | awk '{print "./neurons/" $$1, "./agents/nzdusd-" $$1}' | xargs -n 2 cp
+	ls ./archives | awk '{print "./archives/" $$1, "./agents/gbpusd-" $$1}' | xargs -n 2 cp
 	git checkout origin/usdjpy
 	ls ./neurons | awk '{print "./neurons/" $$1, "./agents/usdjpy-" $$1}' | xargs -n 2 cp
+	ls ./archives | awk '{print "./archives/" $$1, "./agents/usdjpy-" $$1}' | xargs -n 2 cp
 	git checkout origin/usdchf
 	ls ./neurons | awk '{print "./neurons/" $$1, "./agents/usdchf-" $$1}' | xargs -n 2 cp
-	git checkout origin/usdcad
-	ls ./neurons | awk '{print "./neurons/" $$1, "./agents/usdcad-" $$1}' | xargs -n 2 cp
+	ls ./archives | awk '{print "./archives/" $$1, "./agents/usdchf-" $$1}' | xargs -n 2 cp
 	git checkout master
 	make filter DIR_AGENTS='./agents'
 	make report DIR_AGENTS='./agents'
@@ -162,7 +130,7 @@ filter:
 	mkdir -p ./tmp
 	echo "Score,Filename" > scores.csv
 	./tmp.sh | sort -n | tee scores.csv
-	node filter.js
+	node filter.js | xargs rm
 
 update:
 	git checkout eurusd
@@ -185,13 +153,5 @@ update:
 	git pull
 	CURRENCY=AUDUSD node download.js > ./data.js
 	git commit -a -m 'fix: update data.js'
-	git checkout usdcad
-	git pull
-	CURRENCY=USDCAD node download.js > ./data.js
-	git commit -a -m 'fix: update data.js'
-	git checkout nzdusd
-	git pull
-	CURRENCY=NZDUSD node download.js > ./data.js
-	git commit -a -m 'fix: update data.js'
-	make push
 	git checkout master
+	make push
