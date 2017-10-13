@@ -153,5 +153,5 @@ update:
 	git pull
 	CURRENCY=AUDUSD node download.js > ./data.js
 	git commit -a -m 'fix: update data.js'
-	make push
 	git checkout master
+	make push
