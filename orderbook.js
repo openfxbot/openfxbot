@@ -20,21 +20,27 @@ request(requestOpts, function(error, response, body) {
 
 	_.each(_.sortBy(_.keys(data)), function(timestamp) {
 		var rate = data[timestamp].rate;
-		var sum = 0.0;
-		var total = 0.0;
+		var sum = { bid: 0.0, ask: 0.0 };
+		var total = { bid: 0, ask: 0 };
 
 		_.each(_.reverse(_.sortBy(_.keys(data[timestamp].price_points))), function(pricePoint) {
 			var net = (data[timestamp].price_points[pricePoint].ol - data[timestamp].price_points[pricePoint].os);
 			var dist = Math.abs(pricePoint - rate);
 			var margin = parseFloat(nconf.get('margin') || 1.0);
 
-			if(dist < margin * rate) {
-				sum = sum + (net * dist);
-				total++;
+			if(net > 0.0) {
+				sum.bid = sum.bid + (net * dist);
+				total.bid++;
+			} else {
+				sum.ask = sum.ask + (net * dist);
+				total.ask++;
 			}
 		});
 
-		var average = sum / total + rate;
-		console.log(new Date(timestamp * 1000), rate, average, rate > average ? 'BUY' : 'SELL');
+		var bid = rate - Math.abs(sum.bid / total.bid);
+		var ask = rate + Math.abs(sum.ask / total.ask);
+		var average = (bid + ask) / 2.0;
+
+		console.log(new Date(timestamp * 1000), rate, bid, ask, average, (sum.bid / (Math.abs(sum.bid) + Math.abs(sum.ask))) > 0.5 ? 'BUY' : 'SELL');
 	});
 });
