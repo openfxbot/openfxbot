@@ -113,7 +113,7 @@ parser.on('finish', function(){
 		rankTotal[pair.base]++;
 		rankTotal[pair.other]++;
 
-		if(results[currency]['hold']['wager'] < results[currency][netWager > 0.0 ? 'long' : 'short']['wager'])
+		// if(results[currency]['hold']['wager'] < results[currency][netWager > 0.0 ? 'long' : 'short']['wager'])
 		wagers.push({currency: currency, wager: netWager});
 	}
 
