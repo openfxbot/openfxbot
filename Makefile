@@ -24,7 +24,9 @@ report:
 	$(MAKE) data CURRENCY=GBPAUD
 	$(MAKE) data CURRENCY=GBPCHF
 	$(MAKE) data CURRENCY=GBPJPY
+	$(MAKE) data CURRENCY=AUDCHF
 	$(MAKE) data CURRENCY=AUDJPY
+	$(MAKE) data CURRENCY=CHFJPY
 	git checkout master
 	node parse.js | sort -rn | awk '{print $$2}'
 
