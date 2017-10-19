@@ -27,11 +27,12 @@ request(requestOpts, function(error, response, body) {
 
 		_.each(_.reverse(_.sortBy(_.keys(data[timestamp].price_points))), function(pricePoint) {
 			var net = (data[timestamp].price_points[pricePoint].ol - data[timestamp].price_points[pricePoint].os);
-			var dist = Math.abs(pricePoint - rate);
+			var distOrig = pricePoint - rate;
+			var dist = Math.abs(distOrig);
 			var margin = parseFloat(nconf.get('margin') || 1.0);
 
 			if(dist < margin * rate) {
-				if(net > 0.0) {
+				if(distOrig < 0.0) {
 					if(net > min.ol) {
 						min.ol = net;
 						min.bid = rate - dist;
