@@ -178,25 +178,18 @@ compile:
 	mkdir -p ./agents
 	git checkout origin/eurusd
 	ls ./neurons | awk '{print "./neurons/" $$1, "./agents/eurusd-" $$1}' | xargs -n 2 cp
-	ls ./archives | awk '{print "./archives/" $$1, "./agents/eurusd-" $$1}' | xargs -n 2 cp
 	git checkout origin/audusd
 	ls ./neurons | awk '{print "./neurons/" $$1, "./agents/audusd-" $$1}' | xargs -n 2 cp
-	ls ./archives | awk '{print "./archives/" $$1, "./agents/audusd-" $$1}' | xargs -n 2 cp
 	git checkout origin/gbpusd
 	ls ./neurons | awk '{print "./neurons/" $$1, "./agents/gbpusd-" $$1}' | xargs -n 2 cp
-	ls ./archives | awk '{print "./archives/" $$1, "./agents/gbpusd-" $$1}' | xargs -n 2 cp
 	git checkout origin/nzdusd
 	ls ./neurons | awk '{print "./neurons/" $$1, "./agents/nzdusd-" $$1}' | xargs -n 2 cp
-	ls ./archives | awk '{print "./archives/" $$1, "./agents/nzdusd-" $$1}' | xargs -n 2 cp
 	git checkout origin/usdjpy
 	ls ./neurons | awk '{print "./neurons/" $$1, "./agents/usdjpy-" $$1}' | xargs -n 2 cp
-	ls ./archives | awk '{print "./archives/" $$1, "./agents/usdjpy-" $$1}' | xargs -n 2 cp
 	git checkout origin/usdchf
 	ls ./neurons | awk '{print "./neurons/" $$1, "./agents/usdchf-" $$1}' | xargs -n 2 cp
-	ls ./archives | awk '{print "./archives/" $$1, "./agents/usdchf-" $$1}' | xargs -n 2 cp
 	git checkout origin/usdcad
 	ls ./neurons | awk '{print "./neurons/" $$1, "./agents/usdcad-" $$1}' | xargs -n 2 cp
-	ls ./archives | awk '{print "./archives/" $$1, "./agents/usdcad-" $$1}' | xargs -n 2 cp
 	git checkout master
 	make filter DIR_AGENTS='./agents'
 	make report DIR_AGENTS='./agents'

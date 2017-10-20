@@ -1,6 +1,7 @@
 'use strict';
 
 var _ = require('lodash');
+var moment = require('moment');
 var nconf = require('nconf');
 nconf.argv();
 
@@ -12,6 +13,7 @@ var parser = require('csv-parse')();
 var results = {};
 var sum = 0.0;
 var count = 0;
+var twoWeeksAgo = moment().subtract(1, 'weeks');
 
 // Use the writable stream api
 parser.on('readable', function(){
@@ -41,7 +43,12 @@ parser.on('finish', function(){
 	var average = sum / count;
 
 	_.each(_.keys(results), function(filename) {
-		if(results[filename] < average) {
+		var lastUpdatedDate = require(filename).lastUpdatedDate;
+		var isNotValid = results[filename] < average ||
+			!lastUpdatedDate ||
+			moment(lastUpdatedDate).isBefore(twoWeeksAgo);
+
+		if(isNotValid) {
 			console.log(filename);
 		}
 	});
