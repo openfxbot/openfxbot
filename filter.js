@@ -43,7 +43,7 @@ parser.on('finish', function(){
 	var average = sum / count;
 
 	_.each(_.keys(results), function(filename) {
-		var lastUpdatedDate = require(filename).lastUpdatedDate;
+		var lastUpdatedDate = _.get(require(filename), 'max.lastUpdatedDate');
 		var isNotValid = results[filename] < average ||
 			!lastUpdatedDate ||
 			moment(lastUpdatedDate).isBefore(twoWeeksAgo);
