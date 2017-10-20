@@ -96,6 +96,52 @@ archive:
 	git checkout master
 	make push
 
+unarchive:
+	git checkout eurusd
+	git pull
+	mv ./archives/* ./neurons/
+	git add -A ./neurons
+	git add ./archives
+	-git commit -m 'fix: unarchive'
+	git checkout usdchf
+	git pull
+	mv ./archives/* ./neurons/
+	git add -A ./neurons
+	git add ./archives
+	-git commit -m 'fix: unarchive'
+	git checkout usdjpy
+	git pull
+	mv ./archives/* ./neurons/
+	git add -A ./neurons
+	git add ./archives
+	-git commit -m 'fix: unarchive'
+	git checkout gbpusd
+	git pull
+	mv ./archives/* ./neurons/
+	git add -A ./neurons
+	git add ./archives
+	-git commit -m 'fix: unarchive'
+	git checkout audusd
+	git pull
+	mv ./archives/* ./neurons/
+	git add -A ./neurons
+	git add ./archives
+	-git commit -m 'fix: unarchive'
+	git checkout usdcad
+	git pull
+	mv ./archives/* ./neurons/
+	git add -A ./neurons
+	git add ./archives
+	-git commit -m 'fix: unarchive'
+	git checkout nzdusd
+	git pull
+	mv ./archives/* ./neurons/
+	git add -A ./neurons
+	git add ./archives
+	-git commit -m 'fix: unarchive'
+	git checkout master
+	make push
+
 merge:
 	git checkout eurusd
 	git pull
