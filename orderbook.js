@@ -20,6 +20,9 @@ function fetchResults(instrument, period, margin, done) {
 
 	request(requestOpts, function(error, response, body) {
 		var data = JSON.parse(body);
+		if(error || _.has(data, 'errorMessage')) {
+			return console.error('error:', error || data.errorMessage, requestUrl);
+		}
 
 		_.each(_.reverse(_.sortBy(_.keys(data))), function(timestamp) {
 			var rate = data[timestamp].rate;
@@ -102,6 +105,7 @@ function main() {
 					var latest = results[timestamp];
 
 					console.log('==========');
+					console.log();
 					console.log('DATE', '-', new Date(timestamp * 1000));
 					console.log('SELL - ' + JSON.stringify({ sl: latest.max, limit: latest.ask, tp: latest.bid, min: latest.min }));
 					console.log('BUY - ' + JSON.stringify({ sl: latest.min, limit: latest.bid, tp: latest.ask, max: latest.max }));
