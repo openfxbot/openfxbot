@@ -47,52 +47,133 @@ archive:
 	git checkout eurusd
 	git pull
 	-mkdir -p ./archives
-	grep -o '"meetsCriterion":false' ./neurons/* | cut -f 1 -d : | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
+	ls ./neurons | awk '{print "DIR_AGENTS=./neurons node score.js --config-file=" $$1}' > ./tmp.sh
+	chmod a+x ./tmp.sh
+	mkdir -p ./tmp
+	echo "Score,Filename" > scores.csv
+	./tmp.sh | sort -n | tee scores.csv
+	node filter.js | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
 	git add -A ./neurons
 	git add ./archives
 	-git commit -m 'fix: archive'
 	git checkout usdchf
 	git pull
 	-mkdir -p ./archives
-	grep -o '"meetsCriterion":false' ./neurons/* | cut -f 1 -d : | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
+	ls ./neurons | awk '{print "DIR_AGENTS=./neurons node score.js --config-file=" $$1}' > ./tmp.sh
+	chmod a+x ./tmp.sh
+	mkdir -p ./tmp
+	echo "Score,Filename" > scores.csv
+	./tmp.sh | sort -n | tee scores.csv
+	node filter.js | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
 	git add -A ./neurons
 	git add ./archives
 	-git commit -m 'fix: archive'
 	git checkout usdjpy
 	git pull
 	-mkdir -p ./archives
-	grep -o '"meetsCriterion":false' ./neurons/* | cut -f 1 -d : | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
+	ls ./neurons | awk '{print "DIR_AGENTS=./neurons node score.js --config-file=" $$1}' > ./tmp.sh
+	chmod a+x ./tmp.sh
+	mkdir -p ./tmp
+	echo "Score,Filename" > scores.csv
+	./tmp.sh | sort -n | tee scores.csv
+	node filter.js | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
 	git add -A ./neurons
 	git add ./archives
 	-git commit -m 'fix: archive'
 	git checkout gbpusd
 	git pull
 	-mkdir -p ./archives
-	grep -o '"meetsCriterion":false' ./neurons/* | cut -f 1 -d : | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
+	ls ./neurons | awk '{print "DIR_AGENTS=./neurons node score.js --config-file=" $$1}' > ./tmp.sh
+	chmod a+x ./tmp.sh
+	mkdir -p ./tmp
+	echo "Score,Filename" > scores.csv
+	./tmp.sh | sort -n | tee scores.csv
+	node filter.js | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
 	git add -A ./neurons
 	git add ./archives
 	-git commit -m 'fix: archive'
 	git checkout audusd
 	git pull
 	-mkdir -p ./archives
-	grep -o '"meetsCriterion":false' ./neurons/* | cut -f 1 -d : | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
+	ls ./neurons | awk '{print "DIR_AGENTS=./neurons node score.js --config-file=" $$1}' > ./tmp.sh
+	chmod a+x ./tmp.sh
+	mkdir -p ./tmp
+	echo "Score,Filename" > scores.csv
+	./tmp.sh | sort -n | tee scores.csv
+	node filter.js | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
 	git add -A ./neurons
 	git add ./archives
 	-git commit -m 'fix: archive'
 	git checkout usdcad
 	git pull
 	-mkdir -p ./archives
-	grep -o '"meetsCriterion":false' ./neurons/* | cut -f 1 -d : | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
+	ls ./neurons | awk '{print "DIR_AGENTS=./neurons node score.js --config-file=" $$1}' > ./tmp.sh
+	chmod a+x ./tmp.sh
+	mkdir -p ./tmp
+	echo "Score,Filename" > scores.csv
+	./tmp.sh | sort -n | tee scores.csv
+	node filter.js | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
 	git add -A ./neurons
 	git add ./archives
 	-git commit -m 'fix: archive'
 	git checkout nzdusd
 	git pull
 	-mkdir -p ./archives
-	grep -o '"meetsCriterion":false' ./neurons/* | cut -f 1 -d : | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
+	ls ./neurons | awk '{print "DIR_AGENTS=./neurons node score.js --config-file=" $$1}' > ./tmp.sh
+	chmod a+x ./tmp.sh
+	mkdir -p ./tmp
+	echo "Score,Filename" > scores.csv
+	./tmp.sh | sort -n | tee scores.csv
+	node filter.js | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
 	git add -A ./neurons
 	git add ./archives
 	-git commit -m 'fix: archive'
+	git checkout master
+	make push
+
+unarchive:
+	git checkout eurusd
+	git pull
+	mv ./archives/* ./neurons/
+	git add -A ./neurons
+	git add ./archives
+	-git commit -m 'fix: unarchive'
+	git checkout usdchf
+	git pull
+	mv ./archives/* ./neurons/
+	git add -A ./neurons
+	git add ./archives
+	-git commit -m 'fix: unarchive'
+	git checkout usdjpy
+	git pull
+	mv ./archives/* ./neurons/
+	git add -A ./neurons
+	git add ./archives
+	-git commit -m 'fix: unarchive'
+	git checkout gbpusd
+	git pull
+	mv ./archives/* ./neurons/
+	git add -A ./neurons
+	git add ./archives
+	-git commit -m 'fix: unarchive'
+	git checkout audusd
+	git pull
+	mv ./archives/* ./neurons/
+	git add -A ./neurons
+	git add ./archives
+	-git commit -m 'fix: unarchive'
+	git checkout usdcad
+	git pull
+	mv ./archives/* ./neurons/
+	git add -A ./neurons
+	git add ./archives
+	-git commit -m 'fix: unarchive'
+	git checkout nzdusd
+	git pull
+	mv ./archives/* ./neurons/
+	git add -A ./neurons
+	git add ./archives
+	-git commit -m 'fix: unarchive'
 	git checkout master
 	make push
 
@@ -162,7 +243,7 @@ filter:
 	mkdir -p ./tmp
 	echo "Score,Filename" > scores.csv
 	./tmp.sh | sort -n | tee scores.csv
-	node filter.js
+	node filter.js | xargs rm
 
 update:
 	git checkout eurusd
@@ -193,5 +274,5 @@ update:
 	git pull
 	CURRENCY=NZDUSD node download.js > ./data.js
 	git commit -a -m 'fix: update data.js'
-	make push
 	git checkout master
+	make push
