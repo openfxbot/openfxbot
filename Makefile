@@ -47,84 +47,70 @@ archive:
 	git checkout eurusd
 	git pull
 	-mkdir -p ./archives
-	ls ./neurons | awk '{print "DIR_AGENTS=./neurons node score.js --config-file=" $$1}' > ./tmp.sh
+	ls ./neurons | awk '{print "DIR_AGENTS=./neurons node expired.js --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	mkdir -p ./tmp
-	echo "Score,Filename" > scores.csv
-	./tmp.sh | sort -n | tee scores.csv
-	node filter.js | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
+	./tmp.sh | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
 	git add -A ./neurons
 	git add ./archives
 	-git commit -m 'fix: archive'
 	git checkout usdchf
 	git pull
 	-mkdir -p ./archives
-	ls ./neurons | awk '{print "DIR_AGENTS=./neurons node score.js --config-file=" $$1}' > ./tmp.sh
+	ls ./neurons | awk '{print "DIR_AGENTS=./neurons node expired.js --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	mkdir -p ./tmp
-	echo "Score,Filename" > scores.csv
-	./tmp.sh | sort -n | tee scores.csv
-	node filter.js | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
+	./tmp.sh | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
 	git add -A ./neurons
 	git add ./archives
 	-git commit -m 'fix: archive'
 	git checkout usdjpy
 	git pull
 	-mkdir -p ./archives
-	ls ./neurons | awk '{print "DIR_AGENTS=./neurons node score.js --config-file=" $$1}' > ./tmp.sh
+	ls ./neurons | awk '{print "DIR_AGENTS=./neurons node expired.js --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	mkdir -p ./tmp
-	echo "Score,Filename" > scores.csv
-	./tmp.sh | sort -n | tee scores.csv
-	node filter.js | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
+	./tmp.sh | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
 	git add -A ./neurons
 	git add ./archives
 	-git commit -m 'fix: archive'
 	git checkout gbpusd
 	git pull
 	-mkdir -p ./archives
-	ls ./neurons | awk '{print "DIR_AGENTS=./neurons node score.js --config-file=" $$1}' > ./tmp.sh
+	ls ./neurons | awk '{print "DIR_AGENTS=./neurons node expired.js --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	mkdir -p ./tmp
-	echo "Score,Filename" > scores.csv
-	./tmp.sh | sort -n | tee scores.csv
-	node filter.js | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
+	./tmp.sh | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
 	git add -A ./neurons
 	git add ./archives
 	-git commit -m 'fix: archive'
 	git checkout audusd
 	git pull
 	-mkdir -p ./archives
-	ls ./neurons | awk '{print "DIR_AGENTS=./neurons node score.js --config-file=" $$1}' > ./tmp.sh
+	ls ./neurons | awk '{print "DIR_AGENTS=./neurons node expired.js --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	mkdir -p ./tmp
-	echo "Score,Filename" > scores.csv
-	./tmp.sh | sort -n | tee scores.csv
-	node filter.js | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
+	./tmp.sh | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
 	git add -A ./neurons
 	git add ./archives
 	-git commit -m 'fix: archive'
 	git checkout usdcad
 	git pull
 	-mkdir -p ./archives
-	ls ./neurons | awk '{print "DIR_AGENTS=./neurons node score.js --config-file=" $$1}' > ./tmp.sh
+	ls ./neurons | awk '{print "DIR_AGENTS=./neurons node expired.js --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	mkdir -p ./tmp
-	echo "Score,Filename" > scores.csv
-	./tmp.sh | sort -n | tee scores.csv
-	node filter.js | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
+	./tmp.sh | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
 	git add -A ./neurons
 	git add ./archives
 	-git commit -m 'fix: archive'
 	git checkout nzdusd
 	git pull
 	-mkdir -p ./archives
-	ls ./neurons | awk '{print "DIR_AGENTS=./neurons node score.js --config-file=" $$1}' > ./tmp.sh
+	ls ./neurons | awk '{print "DIR_AGENTS=./neurons node expired.js --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	mkdir -p ./tmp
-	echo "Score,Filename" > scores.csv
-	./tmp.sh | sort -n | tee scores.csv
-	node filter.js | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
+	./tmp.sh | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
 	git add -A ./neurons
 	git add ./archives
 	-git commit -m 'fix: archive'
