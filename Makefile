@@ -197,6 +197,7 @@ backtest:
 compile:
 	git fetch origin
 	mkdir -p ./agents
+	make archive
 	git checkout origin/eurusd
 	ls ./neurons | awk '{print "./neurons/" $$1, "./agents/eurusd-" $$1}' | xargs -n 2 cp
 	git checkout origin/audusd
