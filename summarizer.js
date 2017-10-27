@@ -12,7 +12,7 @@ if(time) {
 	time = moment(time).utc().format();
 }
 var margin = parseFloat(nconf.get('margin')) || 1.0;
-var target = parseFloat(nconf.get('target')) || 0.01;
+var target = parseFloat(nconf.get('target')) || 0.0075;
 
 var data = nconf.get('csv') || './report.csv';
 
