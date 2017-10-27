@@ -185,6 +185,25 @@ parser.on('finish', function(){
 					});
 				});
 				break;
+			case 'gbpaud':
+			case 'gbpnzd':
+			case 'audnzd':
+				fetchResults(sum, target, newPair.base + 'usd', time, margin, function(baseResult) {
+					fetchResults(-sum, target, newPair.other + 'usd', time, margin, function(otherResult) {
+						var el = baseResult.el / otherResult.el;
+						var sl = baseResult.sl / otherResult.sl;
+						var tp = baseResult.tp / otherResult.tp;
+
+						console.log(
+							sum,
+							currencyPair,
+							'risk:'+Math.abs(el - sl),
+							'pf:'+((tp - el)/(el-sl)),
+							'sl:'+sl, 'el:'+el, 'tp:'+tp
+						);
+					});
+				});
+				break;
 			default:
 				console.log(sum, currencyPair);
 		};
