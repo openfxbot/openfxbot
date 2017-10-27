@@ -2,10 +2,15 @@ var nconf = require('nconf');
 nconf.argv();
 
 var _ = require('lodash');
+var moment = require('moment');
 var request = require('request');
 
-function fetchResults(instrument, margin, done) {
+function fetchResults(instrument, time, margin, done) {
 	var requestUrl = 'https://api-fxpractice.oanda.com/v3/instruments/' + instrument + '/orderBook';
+
+	if(time) {
+		requestUrl = requestUrl + '?time=' + time;
+	}
 
 	var requestOpts = {
 		url: requestUrl,
@@ -78,14 +83,18 @@ function fetchResults(instrument, margin, done) {
 
 function main() {
 	var instrument = nconf.get('instrument');
+	var time = nconf.get('time');
+	if(time) {
+		time = moment(time).utc().format();
+	}
 	var margin = parseFloat(nconf.get('margin')) || 1.0;
 
 	switch(instrument) {
 		default:
-			fetchResults(instrument, margin, function handleResults(err, latest) {
+			fetchResults(instrument, time, margin, function handleResults(err, latest) {
 				console.log('==========');
 				console.log();
-				console.log('DATE', '-', new Date());
+				console.log('DATE', '-', time);
 				console.log('SELL - ' + JSON.stringify({
 					sl: latest.ask * 1.0025, limit: latest.ask, tp: latest.bid, min: latest.min * 0.9975
 				}));
