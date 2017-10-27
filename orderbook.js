@@ -86,8 +86,12 @@ function main() {
 				console.log('==========');
 				console.log();
 				console.log('DATE', '-', new Date());
-				console.log('SELL - ' + JSON.stringify({ sl: latest.max, limit: latest.ask, tp: latest.bid, min: latest.min }));
-				console.log('BUY - ' + JSON.stringify({ sl: latest.min, limit: latest.bid, tp: latest.ask, max: latest.max }));
+				console.log('SELL - ' + JSON.stringify({
+					sl: latest.ask * 1.0025, limit: latest.ask, tp: latest.bid, min: latest.min * 0.9975
+				}));
+				console.log('BUY - ' + JSON.stringify({
+					sl: latest.bid * 0.9975, limit: latest.bid, tp: latest.ask, max: latest.ask * 1.0025
+				}));
 				console.log('----------');
 				console.log(latest.bullish ? 'UP' : 'DOWN', '-', 'avg:' + latest.average, latest.bullish ? '<' : '>', 'rate:' + latest.rate);
 				console.log();
