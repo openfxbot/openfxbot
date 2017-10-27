@@ -157,7 +157,6 @@ parser.on('finish', function(){
 						sum,
 						currencyPair,
 						'risk:'+Math.abs(result.el - result.sl),
-						'pf:'+((result.tp - result.el)/(result.el-result.sl)),
 						'sl:'+result.sl, 'el:'+result.el, 'tp:'+result.tp
 					);
 				});
@@ -179,7 +178,6 @@ parser.on('finish', function(){
 							sum,
 							currencyPair,
 							'risk:'+Math.abs(el - sl),
-							'pf:'+((tp - el)/(el-sl)),
 							'sl:'+sl, 'el:'+el, 'tp:'+tp
 						);
 					});
@@ -198,7 +196,6 @@ parser.on('finish', function(){
 							sum,
 							currencyPair,
 							'risk:'+Math.abs(el - sl),
-							'pf:'+((tp - el)/(el-sl)),
 							'sl:'+sl, 'el:'+el, 'tp:'+tp
 						);
 					});
