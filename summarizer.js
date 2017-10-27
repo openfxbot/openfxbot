@@ -183,6 +183,7 @@ parser.on('finish', function(){
 					});
 				});
 				break;
+			case 'eurnzd':
 			case 'gbpaud':
 			case 'gbpnzd':
 			case 'audnzd':
