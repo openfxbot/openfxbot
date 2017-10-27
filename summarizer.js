@@ -202,6 +202,24 @@ parser.on('finish', function(){
 					});
 				});
 				break;
+			case 'chfjpy':
+			case 'cadjpy':
+			case 'cadchf':
+				fetchResults(-sum, target, 'usd' + newPair.base, time, margin, function(baseResult) {
+					fetchResults(sum, target, 'usd' + newPair.other, time, margin, function(otherResult) {
+						var el = otherResult.el / baseResult.el;
+						var sl = otherResult.sl / baseResult.sl;
+						var tp = otherResult.tp / baseResult.tp;
+
+						console.log(
+							sum,
+							currencyPair,
+							'risk:'+Math.abs(el - sl),
+							'sl:'+sl, 'el:'+el, 'tp:'+tp
+						);
+					});
+				});
+				break;
 			default:
 				console.log(sum, currencyPair);
 		};
