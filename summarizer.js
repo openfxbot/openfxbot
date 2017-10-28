@@ -138,17 +138,10 @@ parser.on('finish', function(){
 		var sum = rankings[newPair.base] - rankings[newPair.other];
 
 		switch(currencyPair) {
-			case 'audjpy':
-			case 'audusd':
-			case 'euraud':
-			case 'eurchf':
-			case 'eurgbp':
-			case 'eurjpy':
 			case 'eurusd':
-			case 'gbpchf':
-			case 'gbpjpy':
 			case 'gbpusd':
 			case 'nzdusd':
+			case 'audusd':
 			case 'usdcad':
 			case 'usdchf':
 			case 'usdjpy':
@@ -169,6 +162,11 @@ parser.on('finish', function(){
 			case 'nzdjpy':
 			case 'nzdchf':
 			case 'audchf':
+			case 'audjpy':
+			case 'eurchf':
+			case 'eurjpy':
+			case 'gbpchf':
+			case 'gbpjpy':
 				fetchResults(sum, target, newPair.base + 'usd', time, margin, function(baseResult) {
 					fetchResults(sum, target, 'usd' + newPair.other, time, margin, function(otherResult) {
 						var el = baseResult.el * otherResult.el;
@@ -180,8 +178,8 @@ parser.on('finish', function(){
 							: !baseResult.bullish && !otherResult.bullish
 								? 'no'
 								: baseResult.bullish
-									? newPair.base + 'usd'
-									: 'usd' + newPair.other;
+									? sum > 0.0 ? newPair.base + 'usd(buy)' : 'usd' + newPair.other + '(sell)'
+									: sum < 0.0 ? newPair.base + 'usd(sell)' : 'usd' + newPair.other + '(buy)';
 
 						console.log(
 							sum,
@@ -193,6 +191,8 @@ parser.on('finish', function(){
 					});
 				});
 				break;
+			case 'euraud':
+			case 'eurgbp':
 			case 'eurnzd':
 			case 'gbpaud':
 			case 'gbpnzd':
@@ -208,8 +208,8 @@ parser.on('finish', function(){
 							: !baseResult.bullish && otherResult.bullish
 								? 'no'
 								: baseResult.bullish
-									? newPair.base + 'usd(buy)'
-									: newPair.other + 'usd(sell)';
+									? sum > 0.0 ? newPair.base + 'usd(buy)' : newPair.other + 'usd(buy)'
+									: sum < 0.0 ? newPair.base + 'usd(sell)' : newPair.other + 'usd(sell)';
 
 						console.log(
 							sum,
@@ -235,8 +235,8 @@ parser.on('finish', function(){
 							: baseResult.bullish && !otherResult.bullish
 								? 'no'
 								: !baseResult.bullish
-									? 'usd' + newPair.base + '(sell)'
-									: 'usd' + newPair.other + '(buy)';
+									? sum > 0.0 ? 'usd' + newPair.base + '(sell)' : 'usd' + newPair.other + '(sell)'
+									: sum < 0.0 ? 'usd' + newPair.base + '(buy)' : 'usd' + newPair.other + '(buy)';
 
 						console.log(
 							sum,
