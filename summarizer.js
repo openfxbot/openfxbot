@@ -156,6 +156,7 @@ parser.on('finish', function(){
 					console.log(
 						sum,
 						currencyPair,
+						'bullish:'+(result.bullish ? 'yes' : 'no'),
 						'risk:'+Math.abs(result.el - result.sl),
 						'sl:'+result.sl, 'el:'+result.el, 'tp:'+result.tp
 					);
@@ -174,9 +175,18 @@ parser.on('finish', function(){
 						var sl = baseResult.sl * otherResult.sl;
 						var tp = baseResult.tp * otherResult.tp;
 
+						var bullish = baseResult.bullish && otherResult.bullish
+							? 'yes'
+							: !baseResult.bullish && !otherResult.bullish
+								? 'no'
+								: baseResult.bullish
+									? newPair.base + 'usd'
+									: 'usd' + newPair.other;
+
 						console.log(
 							sum,
 							currencyPair,
+							'bullish:'+bullish,
 							'risk:'+Math.abs(el - sl),
 							'sl:'+sl, 'el:'+el, 'tp:'+tp
 						);
@@ -193,9 +203,18 @@ parser.on('finish', function(){
 						var sl = baseResult.sl / otherResult.sl;
 						var tp = baseResult.tp / otherResult.tp;
 
+						var bullish = baseResult.bullish && !otherResult.bullish
+							? 'yes'
+							: !baseResult.bullish && otherResult.bullish
+								? 'no'
+								: baseResult.bullish
+									? newPair.base + 'usd(buy)'
+									: newPair.other + 'usd(sell)';
+
 						console.log(
 							sum,
 							currencyPair,
+							'bullish:'+bullish,
 							'risk:'+Math.abs(el - sl),
 							'sl:'+sl, 'el:'+el, 'tp:'+tp
 						);
@@ -211,9 +230,18 @@ parser.on('finish', function(){
 						var sl = otherResult.sl / baseResult.sl;
 						var tp = otherResult.tp / baseResult.tp;
 
+						var bullish = !baseResult.bullish && otherResult.bullish
+							? 'yes'
+							: baseResult.bullish && !otherResult.bullish
+								? 'no'
+								: !baseResult.bullish
+									? 'usd' + newPair.base + '(sell)'
+									: 'usd' + newPair.other + '(buy)';
+
 						console.log(
 							sum,
 							currencyPair,
+							'bullish:'+bullish,
 							'risk:'+Math.abs(el - sl),
 							'sl:'+sl, 'el:'+el, 'tp:'+tp
 						);
@@ -341,8 +369,8 @@ function fetchResults(bias, target, currencyPair, time, margin, done) {
 		var sellEntryLimit = ((!bullish ? average : ask) + rate) / 2.0;
 
 		var result = bias > 0.0
-			? { sl: bid, el: buyEntryLimit, tp: buyEntryLimit * (1.0 + target) }
-			: { sl: ask, el: sellEntryLimit, tp: sellEntryLimit * (1.0 - target) };
+			? { bullish: bullish, sl: bid, el: buyEntryLimit, tp: buyEntryLimit * (1.0 + target) }
+			: { bullish: bullish, sl: ask, el: sellEntryLimit, tp: sellEntryLimit * (1.0 - target) };
 
 		done(result);
 	});
