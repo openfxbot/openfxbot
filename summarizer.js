@@ -6,7 +6,7 @@ var request = require('request');
 var nconf = require('nconf');
 nconf.argv();
 
-var token = nconf.get('token');
+var token = nconf.get('token') || process.env.OANDA_TOKEN;
 var time = nconf.get('time');
 if(time) {
 	time = moment(time).utc().format();
