@@ -177,9 +177,7 @@ parser.on('finish', function(){
 							? 'yes'
 							: !baseResult.bullish && !otherResult.bullish
 								? 'no'
-								: baseResult.bullish
-									? sum > 0.0 ? newPair.base + 'usd(buy)' : 'usd' + newPair.other + '(sell)'
-									: sum < 0.0 ? newPair.base + 'usd(sell)' : 'usd' + newPair.other + '(buy)';
+								: 'neutral';
 
 						console.log(
 							sum,
@@ -207,9 +205,7 @@ parser.on('finish', function(){
 							? 'yes'
 							: !baseResult.bullish && otherResult.bullish
 								? 'no'
-								: baseResult.bullish
-									? sum > 0.0 ? newPair.base + 'usd(buy)' : newPair.other + 'usd(buy)'
-									: sum < 0.0 ? newPair.base + 'usd(sell)' : newPair.other + 'usd(sell)';
+								: 'neutral';
 
 						console.log(
 							sum,
@@ -234,9 +230,7 @@ parser.on('finish', function(){
 							? 'yes'
 							: baseResult.bullish && !otherResult.bullish
 								? 'no'
-								: !baseResult.bullish
-									? sum > 0.0 ? 'usd' + newPair.base + '(sell)' : 'usd' + newPair.other + '(sell)'
-									: sum < 0.0 ? 'usd' + newPair.base + '(buy)' : 'usd' + newPair.other + '(buy)';
+								: 'neutral';
 
 						console.log(
 							sum,
