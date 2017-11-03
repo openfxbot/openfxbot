@@ -176,11 +176,14 @@ fetchOrders(instrument, time, function(orderResult) {
 			: openPositionsResult.bullish || orderResult.bullish
 				? 'neutral'
 				: 'no'
+		var el = long
+			? (orderResult.bid + openPositionsResult.ask) / 2.0
+			: (orderResult.ask + openPositionsResult.bid) / 2.0;
 
 		console.log('summary:', {
 			bullish: bullish,
 			sl: long ? Math.min(openPositionsResult.bid, openPositionsResult.ask) : Math.max(openPositionsResult.bid, openPositionsResult.ask),
-			el: openPositionsResult.average,
+			el: el,
 			tp: long ? orderResult.ask : orderResult.bid
 		});
 	});
