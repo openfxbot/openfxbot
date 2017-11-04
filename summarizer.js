@@ -8,8 +8,10 @@ nconf.argv();
 
 var token = nconf.get('token') || process.env.OANDA_TOKEN;
 var time = nconf.get('time');
-if(time) {
+if(time && moment().isAfter(moment(time))) {
 	time = moment(time).utc().format();
+} else {
+	time = '';
 }
 var margin = parseFloat(nconf.get('margin')) || 1.0;
 var target = parseFloat(nconf.get('target')) || 0.0075;
