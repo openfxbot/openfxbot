@@ -165,8 +165,8 @@ parser.on('finish', function(){
 								? 'neutral'
 								: 'no'
 						var sl = sum > 0.0
- 							? Math.min(openPositionsResult.bid, openPositionsResult.ask)
-							: Math.max(openPositionsResult.bid, openPositionsResult.ask);
+ 							? Math.min(orderResult.bid, openPositionsResult.bid)
+							: Math.max(orderResult.ask, openPositionsResult.ask);
 						var el = sum > 0.0
 							? (orderResult.bid + openPositionsResult.ask) / 2.0
 							: (orderResult.ask + openPositionsResult.bid) / 2.0;
