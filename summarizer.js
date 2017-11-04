@@ -291,6 +291,7 @@ function fetchOrders(currencyPair, time, done) {
 		var bullish = (sum.bid / (Math.abs(sum.bid) + Math.abs(sum.ask))) > 0.5;
 
 		done({
+			instrument: instrument,
 			ask: ask,
 			rate: rate,
 			bid: bid,
@@ -358,6 +359,7 @@ function fetchOpenPositions(currencyPair, time, done) {
 
 
 		done({
+			instrument: instrument,
 			ask: ask,
 			rate: rate,
 			bid: bid,
