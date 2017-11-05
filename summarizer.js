@@ -180,7 +180,7 @@ parser.on('finish', function(){
 							sum,
 							currencyPair,
 							'bullish:'+bullish,
-							'risk:'+Math.abs(risk),
+							'risk:'+(Math.abs(risk) * 100.0 / openPositionsResult.rate),
 							'sl:'+sl, 'el:'+el, 'tp1:'+tp1, 'tp2:'+tp2
 						);
 					});
