@@ -170,7 +170,9 @@ parser.on('finish', function(){
 						var el = sum > 0.0
 							? (orderResult.bid + openPositionsResult.ask) / 2.0
 							: (orderResult.ask + openPositionsResult.bid) / 2.0;
-						var tp = sum > 0.0
+						var risk = el - sl;
+						var tp1 = el + risk;
+						var tp2 = sum > 0.0
 							? orderResult.ask
 							: orderResult.bid;
 
@@ -178,8 +180,8 @@ parser.on('finish', function(){
 							sum,
 							currencyPair,
 							'bullish:'+bullish,
-							'risk:'+Math.abs(el - sl),
-							'sl:'+sl, 'el:'+el, 'tp:'+tp
+							'risk:'+Math.abs(risk),
+							'sl:'+sl, 'el:'+el, 'tp1:'+tp1, 'tp2:'+tp2
 						);
 					});
 				});
