@@ -156,8 +156,8 @@ parser.on('finish', function(){
 			case 'usdcad':
 			case 'usdchf':
 			case 'usdjpy':
-				fetchOrders(currencyPair, time, true, function(orderEntryResult) {
-					fetchOrders(currencyPair, time, false, function(orderStopResult) {
+				fetchEntryOrders(currencyPair, time, function(orderEntryResult) {
+					fetchStopOrders(currencyPair, time, orderEntryResult, function(orderStopResult) {
 						fetchOpenPositions(currencyPair, time, function(openPositionsResult) {
 							console.error('open positions:', openPositionsResult);
 							console.error('orders (default):', orderEntryResult);
@@ -172,8 +172,8 @@ parser.on('finish', function(){
 								? Math.abs(orderEntryResult.bid - orderStopResult.bid)
 								: Math.abs(orderEntryResult.ask - orderStopResult.ask);
 							var el = sum > 0.0
-								? Math.max(orderEntryResult.bid, orderStopResult.bid)
-								: Math.min(orderEntryResult.ask, orderStopResult.ask);
+								? orderEntryResult.bid
+								: orderEntryResult.ask;
 							var sl = sum > 0.0
 								? el - risk
 								: el + risk;
@@ -181,8 +181,8 @@ parser.on('finish', function(){
 								? el + risk
 								: el - risk;
 							var tp2 = sum > 0.0
-								? orderEntryResult.ask && orderStopResult.ask ? ((orderEntryResult.ask + orderStopResult.ask) / 2.0) : Math.max(orderEntryResult.ask, orderStopResult.ask)
-								: orderEntryResult.bid && orderStopResult.bid ? ((orderEntryResult.bid + orderStopResult.bid) / 2.0) : Math.max(orderEntryResult.bid, orderStopResult.bid);
+								? orderEntryResult.ask
+								: orderEntryResult.bid;
 
 							console.log(
 								sum,
@@ -247,7 +247,7 @@ var currencyPairMapping = {
 	usdjpy: 'USD_JPY'
 };
 
-function fetchOrders(currencyPair, time, entry, done) {
+function fetchEntryOrders(currencyPair, time, done) {
 	var instrument = currencyPairMapping[currencyPair];
 	var requestUrl = 'https://api-fxpractice.oanda.com/v3/instruments/' + instrument + '/orderBook';
 
@@ -288,15 +288,77 @@ function fetchOrders(currencyPair, time, entry, done) {
 
 			if(dist < margin * rate) {
 				if(distOrig < 0.0) {
-					if(entry ? (net > 0.0) : (net < 0.0)) {
-						sum.bid = sum.bid + (net * dist);
-						total.bid = total.bid + Math.abs(net);
-					}
+					sum.bid = sum.bid + (net * dist);
+					total.bid = total.bid + Math.abs(net);
 				} else {
-					if(entry ? (net < 0.0) : (net > 0.0)) {
-						sum.ask = sum.ask + (net * dist);
-						total.ask = total.ask + Math.abs(net);
-					}
+					sum.ask = sum.ask + (net * dist);
+					total.ask = total.ask + Math.abs(net);
+				}
+			}
+		});
+
+		var bid = rate - Math.abs(sum.bid / total.bid);
+		var ask = rate + Math.abs(sum.ask / total.ask);
+		var average = (bid + ask) / 2.0;
+		var bullish = (sum.bid / (Math.abs(sum.bid) + Math.abs(sum.ask))) > 0.5;
+
+		done({
+			instrument: instrument,
+			ask: _.isNaN(ask) ? 0.0 : ask,
+			rate: rate,
+			bid: _.isNaN(bid) ? 0.0 : bid,
+			average: average,
+			bullish: bullish
+		});
+	});
+}
+
+function fetchStopOrders(currencyPair, time, entryOrders, done) {
+	var instrument = currencyPairMapping[currencyPair];
+	var requestUrl = 'https://api-fxpractice.oanda.com/v3/instruments/' + instrument + '/orderBook';
+
+	if(time) {
+		requestUrl = requestUrl + '?time=' + time;
+	}
+
+	var requestOpts = {
+		url: requestUrl,
+		gzip: true,
+		headers: {
+			'Authorization': 'Bearer ' + token
+		}
+	};
+
+	var results = {};
+
+	request(requestOpts, function(error, response, body) {
+		var data = JSON.parse(body);
+		if(error || _.has(data, 'errorMessage')) {
+			return console.error('error:', error || data.errorMessage, requestUrl);
+		}
+
+		var rate = parseFloat(data.orderBook.price);
+		var sum = { bid: 0.0, ask: 0.0 };
+		var total = { bid: 0, ask: 0 };
+
+		_.each(_.sortBy(data.orderBook.buckets, 'price'), function(pricePoint) {
+			pricePoint = _.reduce(_.keys(pricePoint), function(acc, key) {
+				acc[key] = parseFloat(pricePoint[key]);
+
+				return acc;
+			}, {});
+
+			var distOrig = pricePoint.price - rate;
+			var dist = Math.abs(distOrig);
+			var net = pricePoint.longCountPercent - pricePoint.shortCountPercent;
+
+			if(dist < margin * rate && (pricePoint.price > entryOrders.ask || pricePoint.price < entryOrders.bid)) {
+				if(distOrig < 0.0) {
+					sum.bid = sum.bid + (net * dist);
+					total.bid = total.bid + Math.abs(net);
+				} else {
+					sum.ask = sum.ask + (net * dist);
+					total.ask = total.ask + Math.abs(net);
 				}
 			}
 		});
