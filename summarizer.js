@@ -181,8 +181,8 @@ parser.on('finish', function(){
 								? el + risk
 								: el - risk;
 							var tp2 = sum > 0.0
-								? (((orderEntryResult.ask + orderStopResult.ask) / 2.0) + openPositionsResult.bid) / 2.0
-								: (((orderEntryResult.bid + orderStopResult.bid) / 2.0) + openPositionsResult.ask) / 2.0;
+								? orderEntryResult.ask && orderStopResult.ask ? ((orderEntryResult.ask + orderStopResult.ask) / 2.0) : Math.max(orderEntryResult.ask, orderStopResult.ask)
+								: orderEntryResult.bid && orderStopResult.bid ? ((orderEntryResult.bid + orderStopResult.bid) / 2.0) : Math.max(orderEntryResult.bid, orderStopResult.bid);
 
 							console.log(
 								sum,
