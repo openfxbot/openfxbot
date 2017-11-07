@@ -168,35 +168,33 @@ parser.on('finish', function(){
 								: openPositionsResult.bullish || orderEntryResult.bullish
 									? 'neutral'
 									: 'no';
-							var risk = sum > 0.0
-								? Math.abs(orderEntryResult.bid - orderStopResult.bid)
-								: Math.abs(orderEntryResult.ask - orderStopResult.ask);
-							var el = sum > 0.0
-								? orderEntryResult.bid
-								: orderEntryResult.ask;
 							var sl = sum > 0.0
-								? el - risk
-								: el + risk;
-							var tp1 = sum > 0.0
-								? el + risk
-								: el - risk;
-							var tp2 = sum > 0.0
-								? orderEntryResult.ask
-								: orderEntryResult.bid;
+								? orderStopResult.bid
+								: orderStopResult.ask;
+							var el = sum > 0.0
+								? (orderEntryResult.bid + openPositionsResult.bid) / 2.0
+								: (orderEntryResult.ask + openPositionsResult.ask) / 2.0;
+							var risk = el - sl;
+							var tp1 = el + risk;
+							var tp2 = sum < 0.0
+								? (orderEntryResult.bid + openPositionsResult.bid) / 2.0
+								: (orderEntryResult.ask + openPositionsResult.ask) / 2.0;
+							var reward = tp2 - el;
+							var ratio = reward / risk;
 
 							console.log(
 								sum,
 								currencyPair,
 								'bullish:'+bullish,
 								'risk:'+(risk * 100.0 / openPositionsResult.rate),
-								'sl:'+sl, 'el:'+el, 'tp1:'+tp1, 'tp2:'+tp2
+								'sl:'+sl, 'el:'+el, 'tp1:'+tp1, 'tp2:'+tp2,
+								'ratio:'+ratio
 							);
 						});
 					});
 				});
 				break;
 			default:
-				console.log(sum, currencyPair);
 		};
 	});
 });
@@ -284,7 +282,9 @@ function fetchEntryOrders(currencyPair, time, done) {
 
 			var distOrig = pricePoint.price - rate;
 			var dist = Math.abs(distOrig);
-			var net = pricePoint.longCountPercent - pricePoint.shortCountPercent;
+			var net = pricePoint.price > rate
+				? pricePoint.longCountPercent
+				: pricePoint.shortCountPercent;
 
 			if(dist < margin * rate) {
 				if(distOrig < 0.0) {
@@ -350,7 +350,9 @@ function fetchStopOrders(currencyPair, time, entryOrders, done) {
 
 			var distOrig = pricePoint.price - rate;
 			var dist = Math.abs(distOrig);
-			var net = pricePoint.longCountPercent - pricePoint.shortCountPercent;
+			var net = pricePoint.price > rate
+				? pricePoint.shortCountPercent
+				: pricePoint.longCountPercent;
 
 			if(dist < margin * rate && (pricePoint.price > entryOrders.ask || pricePoint.price < entryOrders.bid)) {
 				if(distOrig < 0.0) {
