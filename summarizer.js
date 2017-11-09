@@ -177,8 +177,8 @@ parser.on('finish', function(){
 							var risk = el - sl;
 							var tp1 = el + risk;
 							var tp2 = sum < 0.0
-								? (orderEntryResult.bid + openPositionsResult.bid) / 2.0
-								: (orderEntryResult.ask + openPositionsResult.ask) / 2.0;
+								? (orderEntryResult.bid + orderStopResult.bid) / 2.0
+								: (orderEntryResult.ask + orderStopResult.ask) / 2.0;
 							var reward = tp2 - el;
 							var ratio = reward / risk;
 
@@ -283,8 +283,8 @@ function fetchEntryOrders(currencyPair, time, done) {
 			var distOrig = pricePoint.price - rate;
 			var dist = Math.abs(distOrig);
 			var net = pricePoint.price > rate
-				? pricePoint.longCountPercent
-				: pricePoint.shortCountPercent;
+				? pricePoint.shortCountPercent
+				: pricePoint.longCountPercent;
 
 			if(dist < margin * rate) {
 				if(distOrig < 0.0) {
