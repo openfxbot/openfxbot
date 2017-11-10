@@ -4,7 +4,7 @@ var format = 'YYYY-MM-DD'
 var now = process.env.REPORT_DATE
 	? moment(process.env.REPORT_DATE, format)
 	: moment();
-var past = moment(now.toDate()).subtract(15, 'years');
+var past = moment(now.toDate()).subtract(10, 'years');
 
 var formattedHour = now.format('HH');
 var formattedNow = now.format(format);
@@ -12,11 +12,12 @@ var formattedPast = past.format(format);
 
 var assert = require('assert');
 var request = require('request');
+
 var requestUrl = 'http://www.myfxbook.com/getHistoricalDataByDate.json?&start=' +
 	formattedPast +
-	'%2000:00&end=' +
+	'%2022:00&end=' +
 	formattedNow + 
-	'%2000:00&symbol=' +
+	'%2022:00&symbol=' +
 	(process.env.CURRENCY || 'EURUSD') +
 	'&timeScale=10080&userTimeFormat=0';
 
