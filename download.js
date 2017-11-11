@@ -13,13 +13,14 @@ var formattedPast = past.format(format);
 var assert = require('assert');
 var request = require('request');
 
-var requestUrl = 'http://www.myfxbook.com/getHistoricalDataByDate.json?&start=' +
+var requestUrl = 'https://www.myfxbook.com/getHistoricalDataByDate.json?&start=' +
 	formattedPast +
 	'%2022:00&end=' +
 	formattedNow + 
 	'%2022:00&symbol=' +
 	(process.env.CURRENCY || 'EURUSD') +
-	'&timeScale=10080&userTimeFormat=0';
+	'&timeScale=10080&userTimeFormat=0&z=' +
+	Math.random();
 
 request(requestUrl, function(error, response, body) {
 		if (!error && response.statusCode == 200) {
