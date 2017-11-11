@@ -15,8 +15,9 @@ if(time && moment().isAfter(moment(time))) {
 } else {
 	time = '';
 }
-var margin = parseFloat(nconf.get('margin')) || 1.0;
+var margin = parseFloat(nconf.get('margin')) || 0.01;
 var target = parseFloat(nconf.get('target')) || 0.0075;
+var ranked = nconf.get('ranked') !== 'false';
 
 var data = nconf.get('csv') || './report.csv';
 
@@ -24,7 +25,7 @@ var data = nconf.get('csv') || './report.csv';
 var parser = require('csv-parse')();
 
 var results = {};
-var wagers = [];
+var wagers = {};
 var rankBase = {};
 var rankTotal = {usd:0, gbp:0, aud:0, eur:0, nzd:0, chf:0, cad:0, jpy:0};
 
@@ -128,7 +129,8 @@ parser.on('finish', function(){
 		rankTotal[pair.other]++;
 
 		// if(results[currency]['hold']['wager'] < results[currency][netWager > 0.0 ? 'long' : 'short']['wager'])
-		wagers.push({currency: currency, wager: netWager});
+		//wagers.push({currency: currency, wager: netWager});
+		wagers[currency] = netWager;
 	}
 
 	var rankings = {};
@@ -139,7 +141,9 @@ parser.on('finish', function(){
 	_.each(_.keys(results), function (currencyPair) {
 		var newPair = getPair(currencyPair);
 
-		var sum = rankings[newPair.base] - rankings[newPair.other];
+		var sum = ranked
+			? rankings[newPair.base] - rankings[newPair.other]
+			: wagers[currencyPair] * 100.0;
 
 		switch(currencyPair) {
 			case 'audjpy':
