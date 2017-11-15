@@ -15,8 +15,8 @@ if(time && moment().isAfter(moment(time))) {
 } else {
 	time = '';
 }
-var margin = parseFloat(nconf.get('margin')) || 0.005;
-var target = parseFloat(nconf.get('target')) || 0.0075;
+var margin = parseFloat(nconf.get('margin')) || 0.00125;
+var target = parseFloat(nconf.get('target')) || 0.0025;
 var ranked = nconf.get('ranked') !== 'false';
 
 var data = nconf.get('csv') || './report.csv';
@@ -161,7 +161,7 @@ parser.on('finish', function(){
 			case 'usdchf':
 			case 'usdjpy':
 				fetchEntryOrders(currencyPair, time, function(orderEntryResult) {
-					fetchStopOrders(currencyPair, time, function(orderStopResult) {
+					fetchStopOrders(currencyPair, time, orderEntryResult, function(orderStopResult) {
 						fetchOpenPositions(currencyPair, time, function(openPositionsResult) {
 							console.error('open positions:', openPositionsResult);
 							console.error('orders (default):', orderEntryResult);
@@ -170,7 +170,9 @@ parser.on('finish', function(){
 							var sl = sum > 0.0
 								? orderStopResult.bid
 								: orderStopResult.ask;
-							var el = (orderEntryResult.bid + orderEntryResult.ask) / 2.0;
+							var el = sum > 0.0
+								? orderEntryResult.bid
+								: orderEntryResult.ask;
 							var risk = el - sl;
 							var tp1 = el + risk;
 							var tp2 = el + (2.0 * risk);
@@ -262,8 +264,9 @@ function fetchEntryOrders(currencyPair, time, done) {
 		}
 
 		var rate = parseFloat(data.orderBook.price);
-		var sum = { bid: 0.0, ask: 0.0 };
-		var total = { bid: 0, ask: 0 };
+		var bid = rate;
+		var ask = rate;
+		var max = { bidPercent: 0.0, askPercent: 0.0 };
 
 		_.each(_.sortBy(data.orderBook.buckets, 'price'), function(pricePoint) {
 			pricePoint = _.reduce(_.keys(pricePoint), function(acc, key) {
@@ -275,22 +278,24 @@ function fetchEntryOrders(currencyPair, time, done) {
 			var distOrig = pricePoint.price - rate;
 			var dist = Math.abs(distOrig);
 			var net = pricePoint.price > rate
-				? pricePoint.shortCountPercent
-				: pricePoint.longCountPercent;
+				? pricePoint.shortCountPercent - pricePoint.longCountPercent
+				: pricePoint.longCountPercent - pricePoint.shortCountPercent;
 
 			if(dist < margin * rate) {
 				if(distOrig < 0.0) {
-					sum.bid = sum.bid + (net * dist);
-					total.bid = total.bid + Math.abs(net);
+					if(net > max.bidPercent) {
+						max.bidPercent = net;
+						bid = pricePoint.price;
+					}
 				} else {
-					sum.ask = sum.ask + (net * dist);
-					total.ask = total.ask + Math.abs(net);
+					if(net > max.askPercent) {
+						max.askPercent = net;
+						ask = pricePoint.price;
+					}
 				}
 			}
 		});
 
-		var bid = rate - Math.abs(sum.bid / total.bid);
-		var ask = rate + Math.abs(sum.ask / total.ask);
 		var average = (bid + ask) / 2.0;
 
 		done({
@@ -303,7 +308,7 @@ function fetchEntryOrders(currencyPair, time, done) {
 	});
 }
 
-function fetchStopOrders(currencyPair, time, done) {
+function fetchStopOrders(currencyPair, time, entryOrders, done) {
 	var instrument = currencyPairMapping[currencyPair];
 	var requestUrl = 'https://api-fxpractice.oanda.com/v3/instruments/' + instrument + '/orderBook';
 
@@ -328,8 +333,8 @@ function fetchStopOrders(currencyPair, time, done) {
 		}
 
 		var rate = parseFloat(data.orderBook.price);
-		var bid = rate;
-		var ask = rate;
+		var bid = entryOrders.bid;
+		var ask = entryOrders.ask;
 		var max = { bidPercent: 0.0, askPercent: 0.0 };
 
 		_.each(_.sortBy(data.orderBook.buckets, 'price'), function(pricePoint) {
@@ -342,18 +347,18 @@ function fetchStopOrders(currencyPair, time, done) {
 			var distOrig = pricePoint.price - rate;
 			var dist = Math.abs(distOrig);
 			var net = pricePoint.price > rate
-				? pricePoint.shortCountPercent
-				: pricePoint.longCountPercent;
+				? pricePoint.shortCountPercent - pricePoint.longCountPercent
+				: pricePoint.longCountPercent - pricePoint.shortCountPercent;
 
-			if(dist < margin * rate) {
+			if(dist < (margin + target) * rate && (pricePoint.price < entryOrders.bid || pricePoint.price > entryOrders.ask)) {
 				if(distOrig < 0.0) {
-					if(pricePoint.longCountPercent > max.bidPercent) {
-						max.bidPercent = pricePoint.longCountPercent;
+					if(net > max.bidPercent) {
+						max.bidPercent = net;
 						bid = pricePoint.price;
 					}
 				} else {
-					if(pricePoint.shortCountPercent > max.askPercent) {
-						max.askPercent = pricePoint.shortCountPercent;
+					if(net > max.askPercent) {
+						max.askPercent = net;
 						ask = pricePoint.price;
 					}
 				}
