@@ -15,7 +15,7 @@ if(time && moment().isAfter(moment(time))) {
 } else {
 	time = '';
 }
-var margin = parseFloat(nconf.get('margin')) || 0.01;
+var margin = parseFloat(nconf.get('margin')) || 0.005;
 var target = parseFloat(nconf.get('target')) || 0.0075;
 var ranked = nconf.get('ranked') !== 'false';
 
@@ -161,38 +161,26 @@ parser.on('finish', function(){
 			case 'usdchf':
 			case 'usdjpy':
 				fetchEntryOrders(currencyPair, time, function(orderEntryResult) {
-					fetchStopOrders(currencyPair, time, orderEntryResult, function(orderStopResult) {
+					fetchStopOrders(currencyPair, time, function(orderStopResult) {
 						fetchOpenPositions(currencyPair, time, function(openPositionsResult) {
 							console.error('open positions:', openPositionsResult);
 							console.error('orders (default):', orderEntryResult);
 							console.error('orders (alt):', orderStopResult);
 
-							var bullish = openPositionsResult.bullish && orderEntryResult.bullish
-								? 'yes'
-								: openPositionsResult.bullish || orderEntryResult.bullish
-									? 'neutral'
-									: 'no';
 							var sl = sum > 0.0
 								? orderStopResult.bid
 								: orderStopResult.ask;
-							var el = sum > 0.0
-								? (orderEntryResult.bid + openPositionsResult.bid) / 2.0
-								: (orderEntryResult.ask + openPositionsResult.ask) / 2.0;
+							var el = (orderEntryResult.bid + orderEntryResult.ask) / 2.0;
 							var risk = el - sl;
 							var tp1 = el + risk;
-							var tp2 = sum < 0.0
-								? (orderEntryResult.bid + orderStopResult.bid) / 2.0
-								: (orderEntryResult.ask + orderStopResult.ask) / 2.0;
+							var tp2 = el + (2.0 * risk);
 							var reward = tp2 - el;
-							var ratio = reward / risk;
 
 							console.log(
 								sum,
 								currencyPair,
-								'bullish:'+bullish,
 								'risk:'+(risk * 100.0 / openPositionsResult.rate),
-								'sl:'+sl, 'el:'+el, 'tp1:'+tp1, 'tp2:'+tp2,
-								'ratio:'+ratio
+								'sl:'+sl, 'el:'+el, 'tp1:'+tp1, 'tp2:'+tp2
 							);
 						});
 					});
@@ -304,20 +292,18 @@ function fetchEntryOrders(currencyPair, time, done) {
 		var bid = rate - Math.abs(sum.bid / total.bid);
 		var ask = rate + Math.abs(sum.ask / total.ask);
 		var average = (bid + ask) / 2.0;
-		var bullish = (sum.bid / (Math.abs(sum.bid) + Math.abs(sum.ask))) > 0.5;
 
 		done({
 			instrument: instrument,
 			ask: _.isNaN(ask) ? 0.0 : ask,
 			rate: rate,
 			bid: _.isNaN(bid) ? 0.0 : bid,
-			average: average,
-			bullish: bullish
+			average: average
 		});
 	});
 }
 
-function fetchStopOrders(currencyPair, time, entryOrders, done) {
+function fetchStopOrders(currencyPair, time, done) {
 	var instrument = currencyPairMapping[currencyPair];
 	var requestUrl = 'https://api-fxpractice.oanda.com/v3/instruments/' + instrument + '/orderBook';
 
@@ -342,8 +328,9 @@ function fetchStopOrders(currencyPair, time, entryOrders, done) {
 		}
 
 		var rate = parseFloat(data.orderBook.price);
-		var sum = { bid: 0.0, ask: 0.0 };
-		var total = { bid: 0, ask: 0 };
+		var bid = rate;
+		var ask = rate;
+		var max = { bidPercent: 0.0, askPercent: 0.0 };
 
 		_.each(_.sortBy(data.orderBook.buckets, 'price'), function(pricePoint) {
 			pricePoint = _.reduce(_.keys(pricePoint), function(acc, key) {
@@ -358,29 +345,29 @@ function fetchStopOrders(currencyPair, time, entryOrders, done) {
 				? pricePoint.shortCountPercent
 				: pricePoint.longCountPercent;
 
-			if(dist < margin * rate && (pricePoint.price > entryOrders.ask || pricePoint.price < entryOrders.bid)) {
+			if(dist < margin * rate) {
 				if(distOrig < 0.0) {
-					sum.bid = sum.bid + (net * dist);
-					total.bid = total.bid + Math.abs(net);
+					if(pricePoint.longCountPercent > max.bidPercent) {
+						max.bidPercent = pricePoint.longCountPercent;
+						bid = pricePoint.price;
+					}
 				} else {
-					sum.ask = sum.ask + (net * dist);
-					total.ask = total.ask + Math.abs(net);
+					if(pricePoint.shortCountPercent > max.askPercent) {
+						max.askPercent = pricePoint.shortCountPercent;
+						ask = pricePoint.price;
+					}
 				}
 			}
 		});
 
-		var bid = rate - Math.abs(sum.bid / total.bid);
-		var ask = rate + Math.abs(sum.ask / total.ask);
 		var average = (bid + ask) / 2.0;
-		var bullish = (sum.bid / (Math.abs(sum.bid) + Math.abs(sum.ask))) > 0.5;
 
 		done({
 			instrument: instrument,
 			ask: _.isNaN(ask) ? 0.0 : ask,
 			rate: rate,
 			bid: _.isNaN(bid) ? 0.0 : bid,
-			average: average,
-			bullish: bullish
+			average: average
 		});
 	});
 }
@@ -439,7 +426,6 @@ function fetchOpenPositions(currencyPair, time, done) {
 		var bid = sum.bid / total.bid;
 		var ask = sum.ask / total.ask;
 		var average = (bid + ask) / 2.0;
-		var bullish = average < rate;
 
 
 		done({
@@ -447,8 +433,7 @@ function fetchOpenPositions(currencyPair, time, done) {
 			ask: _.isNaN(ask) ? 0.0 : ask,
 			rate: rate,
 			bid: _.isNaN(bid) ? 0.0 : bid,
-			average: average,
-			bullish: bullish
+			average: average
 		});
 	});
 }
