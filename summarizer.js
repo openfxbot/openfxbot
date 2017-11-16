@@ -160,9 +160,9 @@ parser.on('finish', function(){
 			case 'usdcad':
 			case 'usdchf':
 			case 'usdjpy':
-				fetchEntryOrders(currencyPair, time, function(orderEntryResult) {
-					fetchStopOrders(currencyPair, time, orderEntryResult, function(orderStopResult) {
-						fetchOpenPositions(currencyPair, time, function(openPositionsResult) {
+				fetchOpenPositions(currencyPair, time, function(openPositionsResult) {
+					fetchEntryOrders(currencyPair, time, function(orderEntryResult) {
+						fetchStopOrders(currencyPair, time, openPositionsResult, function(orderStopResult) {
 							console.error('open positions:', openPositionsResult);
 							console.error('orders (default):', orderEntryResult);
 							console.error('orders (alt):', orderStopResult);
@@ -171,8 +171,8 @@ parser.on('finish', function(){
 								? orderStopResult.bid
 								: orderStopResult.ask;
 							var el = sum > 0.0
-								? orderEntryResult.bid
-								: orderEntryResult.ask;
+								? openPositionsResult.bid
+								: openPositionsResult.ask;
 							var risk = el - sl;
 							var tp1 = el + risk;
 							var tp2 = el + (2.0 * risk);
