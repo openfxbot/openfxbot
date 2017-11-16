@@ -267,6 +267,8 @@ function fetchEntryOrders(currencyPair, time, done) {
 		var bid = rate;
 		var ask = rate;
 		var max = { bidPercent: 0.0, askPercent: 0.0 };
+		var bids = [];
+		var asks = [];
 
 		_.each(_.sortBy(data.orderBook.buckets, 'price'), function(pricePoint) {
 			pricePoint = _.reduce(_.keys(pricePoint), function(acc, key) {
@@ -286,11 +288,13 @@ function fetchEntryOrders(currencyPair, time, done) {
 					if(net > max.bidPercent) {
 						max.bidPercent = net;
 						bid = pricePoint.price;
+						bids.push(bid);
 					}
 				} else {
 					if(net > max.askPercent) {
 						max.askPercent = net;
 						ask = pricePoint.price;
+						asks.push(ask);
 					}
 				}
 			}
@@ -300,9 +304,11 @@ function fetchEntryOrders(currencyPair, time, done) {
 
 		done({
 			instrument: instrument,
-			ask: _.isNaN(ask) ? 0.0 : ask,
+			asks: asks,
+			ask: ask,
 			rate: rate,
-			bid: _.isNaN(bid) ? 0.0 : bid,
+			bid: bid,
+			bids: bids,
 			average: average
 		});
 	});
