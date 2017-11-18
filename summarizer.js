@@ -161,30 +161,41 @@ parser.on('finish', function(){
 			case 'usdchf':
 			case 'usdjpy':
 				fetchOpenPositions(currencyPair, time, function(openPositionsResult) {
-					fetchEntryOrders(currencyPair, time, function(orderEntryResult) {
-						fetchStopOrders(currencyPair, time, openPositionsResult, function(orderStopResult) {
-							console.error('open positions:', openPositionsResult);
-							console.error('orders (default):', orderEntryResult);
-							console.error('orders (alt):', orderStopResult);
-
+					var rate = openPositionsResult.rate;
+					var el = rate;
+					/*sum > 0.0
+						? _.min(openPositionsResult.levels)
+						: _.max(openPositionsResult.levels);*/
+					fetchStopOrders(currencyPair, time, el || rate, function(orderStopResult) {
 							var sl = sum > 0.0
 								? orderStopResult.bid
 								: orderStopResult.ask;
-							var el = sum > 0.0
-								? openPositionsResult.bid
-								: openPositionsResult.ask;
 							var risk = el - sl;
 							var tp1 = el + risk;
-							var tp2 = el + (2.0 * risk);
-							var reward = tp2 - el;
+							var tp2 = sum < 0.0
+								? orderStopResult.bid
+								: orderStopResult.ask;
 
 							console.log(
 								sum,
 								currencyPair,
 								'risk:'+(risk * 100.0 / openPositionsResult.rate),
-								'sl:'+sl, 'el:'+el, 'rate:'+openPositionsResult.rate, 'tp1:'+tp1, 'tp2:'+tp2
+								'sl:'+sl, 'el:'+el, 'rate:'+rate, 'tp1:'+tp1, 'tp2:'+tp2
+							);
+					/*
+						fetchStopOrders(currencyPair, time, orderEntryResult, function(orderStopResult) {
+							console.error('open positions:', openPositionsResult);
+							console.error('orders (default):', orderEntryResult);
+							console.error('orders (alt):', orderStopResult);
+							var el = openPositionsResult.rate;
+							var reward = tp2 - el;
+
+							console.log(
+								sum,
+								currencyPair,
 							);
 						});
+					*/
 					});
 				});
 				break;
@@ -264,11 +275,27 @@ function fetchEntryOrders(currencyPair, time, done) {
 		}
 
 		var rate = parseFloat(data.orderBook.price);
-		var bid = rate;
-		var ask = rate;
 		var max = { bidPercent: 0.0, askPercent: 0.0 };
-		var bids = [];
-		var asks = [];
+		var levels = [];
+
+		_.each(_.reverse(_.sortBy(data.orderBook.buckets, 'price')), function(pricePoint) {
+			pricePoint = _.reduce(_.keys(pricePoint), function(acc, key) {
+				acc[key] = parseFloat(pricePoint[key]);
+
+				return acc;
+			}, {});
+
+			var distOrig = pricePoint.price - rate;
+			var dist = Math.abs(distOrig);
+			var net = pricePoint.price > rate
+				? pricePoint.shortCountPercent - pricePoint.longCountPercent
+				: pricePoint.longCountPercent - pricePoint.shortCountPercent;
+
+			if(distOrig < rate && net > max.bidPercent) {
+				max.bidPercent = net;
+				levels.push(pricePoint.price);
+			}
+		});
 
 		_.each(_.sortBy(data.orderBook.buckets, 'price'), function(pricePoint) {
 			pricePoint = _.reduce(_.keys(pricePoint), function(acc, key) {
@@ -283,38 +310,20 @@ function fetchEntryOrders(currencyPair, time, done) {
 				? pricePoint.shortCountPercent - pricePoint.longCountPercent
 				: pricePoint.longCountPercent - pricePoint.shortCountPercent;
 
-			if(dist < margin * rate) {
-				if(distOrig < 0.0) {
-					if(net > max.bidPercent) {
-						max.bidPercent = net;
-						bid = pricePoint.price;
-						bids.push(bid);
-					}
-				} else {
-					if(net > max.askPercent) {
-						max.askPercent = net;
-						ask = pricePoint.price;
-						asks.push(ask);
-					}
-				}
+			if(distOrig > rate && net > max.askPercent) {
+				max.askPercent = net;
+				levels.push(pricePoint.price);
 			}
 		});
 
-		var average = (bid + ask) / 2.0;
-
 		done({
 			instrument: instrument,
-			asks: asks,
-			ask: ask,
-			rate: rate,
-			bid: bid,
-			bids: bids,
-			average: average
+			levels: _.sortedUniq(levels)
 		});
 	});
 }
 
-function fetchStopOrders(currencyPair, time, entryOrders, done) {
+function fetchStopOrders(currencyPair, time, entryLimit, done) {
 	var instrument = currencyPairMapping[currencyPair];
 	var requestUrl = 'https://api-fxpractice.oanda.com/v3/instruments/' + instrument + '/orderBook';
 
@@ -339,8 +348,8 @@ function fetchStopOrders(currencyPair, time, entryOrders, done) {
 		}
 
 		var rate = parseFloat(data.orderBook.price);
-		var bid = entryOrders.bid;
-		var ask = entryOrders.ask;
+		var bid = entryLimit;
+		var ask = entryLimit;
 		var max = { bidPercent: 0.0, askPercent: 0.0 };
 
 		_.each(_.sortBy(data.orderBook.buckets, 'price'), function(pricePoint) {
@@ -350,13 +359,13 @@ function fetchStopOrders(currencyPair, time, entryOrders, done) {
 				return acc;
 			}, {});
 
-			var distOrig = pricePoint.price - rate;
+			var distOrig = pricePoint.price - entryLimit;
 			var dist = Math.abs(distOrig);
 			var net = pricePoint.price > rate
 				? pricePoint.shortCountPercent - pricePoint.longCountPercent
 				: pricePoint.longCountPercent - pricePoint.shortCountPercent;
 
-			if(dist < (margin + target) * rate && (pricePoint.price < entryOrders.bid || pricePoint.price > entryOrders.ask)) {
+			if(dist < target * entryLimit && (pricePoint.price < entryLimit || pricePoint.price > entryLimit)) {
 				if(distOrig < 0.0) {
 					if(net > max.bidPercent) {
 						max.bidPercent = net;
@@ -408,9 +417,26 @@ function fetchOpenPositions(currencyPair, time, done) {
 		}
 
 		var rate = parseFloat(data.positionBook.price);
-		var bid = rate;
-		var ask = rate;
+		var levels = [];
 		var max = { bidPercent: 0.0, askPercent: 0.0 };
+
+		_.each(_.reverse(_.sortBy(data.positionBook.buckets, 'price')), function(pricePoint) {
+			pricePoint = _.reduce(_.keys(pricePoint), function(acc, key) {
+				acc[key] = parseFloat(pricePoint[key]);
+
+				return acc;
+			}, {});
+
+			var d = Math.abs(pricePoint.price - rate);
+			var withinMargin = (d/rate <= margin);
+
+			if(pricePoint.shortCountPercent > max.askPercent) {
+				max.askPercent = pricePoint.shortCountPercent;
+				if(withinMargin) {
+					levels.push(pricePoint.price);
+				}
+			}
+		});
 
 		_.each(_.sortBy(data.positionBook.buckets, 'price'), function(pricePoint) {
 			pricePoint = _.reduce(_.keys(pricePoint), function(acc, key) {
@@ -420,29 +446,20 @@ function fetchOpenPositions(currencyPair, time, done) {
 			}, {});
 
 			var d = Math.abs(pricePoint.price - rate);
+			var withinMargin = (d/rate <= margin);
 
-			if(d/rate <= margin) {
-				if(pricePoint.longCountPercent > max.askPercent) {
-					max.askPercent = pricePoint.longCountPercent;
-					ask = pricePoint.price;
-				}
-
-				if(pricePoint.shortCountPercent > max.bidPercent) {
-					max.bidPercent = pricePoint.shortCountPercent;
-					bid = pricePoint.price;
+			if(pricePoint.longCountPercent > max.bidPercent) {
+				max.bidPercent = pricePoint.longCountPercent;
+				if(withinMargin) {
+					levels.push(pricePoint.price);
 				}
 			}
 		});
 
-		var average = (bid + ask) / 2.0;
-
-
 		done({
 			instrument: instrument,
-			ask: _.isNaN(ask) ? 0.0 : ask,
 			rate: rate,
-			bid: _.isNaN(bid) ? 0.0 : bid,
-			average: average
+			levels: _.sortedUniq(levels)
 		});
 	});
 }
