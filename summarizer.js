@@ -15,8 +15,9 @@ if(time && moment().isAfter(moment(time))) {
 } else {
 	time = '';
 }
-var margin = parseFloat(nconf.get('margin')) || 1.0;
-var target = parseFloat(nconf.get('target')) || 0.0075;
+var margin = parseFloat(nconf.get('margin')) || 0.00125;
+var target = parseFloat(nconf.get('target')) || 0.0025;
+var ranked = nconf.get('ranked') !== 'false';
 
 var data = nconf.get('csv') || './report.csv';
 
@@ -24,7 +25,7 @@ var data = nconf.get('csv') || './report.csv';
 var parser = require('csv-parse')();
 
 var results = {};
-var wagers = [];
+var wagers = {};
 var rankBase = {};
 var rankTotal = {usd:0, gbp:0, aud:0, eur:0, nzd:0, chf:0, cad:0, jpy:0};
 
@@ -128,7 +129,8 @@ parser.on('finish', function(){
 		rankTotal[pair.other]++;
 
 		// if(results[currency]['hold']['wager'] < results[currency][netWager > 0.0 ? 'long' : 'short']['wager'])
-		wagers.push({currency: currency, wager: netWager});
+		//wagers.push({currency: currency, wager: netWager});
+		wagers[currency] = netWager;
 	}
 
 	var rankings = {};
@@ -139,7 +141,9 @@ parser.on('finish', function(){
 	_.each(_.keys(results), function (currencyPair) {
 		var newPair = getPair(currencyPair);
 
-		var sum = rankings[newPair.base] - rankings[newPair.other];
+		var sum = ranked
+			? rankings[newPair.base] - rankings[newPair.other]
+			: wagers[currencyPair] * 100.0;
 
 		switch(currencyPair) {
 			case 'audjpy':
@@ -156,41 +160,42 @@ parser.on('finish', function(){
 			case 'usdcad':
 			case 'usdchf':
 			case 'usdjpy':
-				fetchEntryOrders(currencyPair, time, function(orderEntryResult) {
-					fetchStopOrders(currencyPair, time, orderEntryResult, function(orderStopResult) {
-						fetchOpenPositions(currencyPair, time, function(openPositionsResult) {
-							console.error('open positions:', openPositionsResult);
-							console.error('orders (default):', orderEntryResult);
-							console.error('orders (alt):', orderStopResult);
-
-							var bullish = openPositionsResult.bullish && orderEntryResult.bullish
-								? 'yes'
-								: openPositionsResult.bullish || orderEntryResult.bullish
-									? 'neutral'
-									: 'no';
+				fetchOpenPositions(currencyPair, time, function(openPositionsResult) {
+					var rate = openPositionsResult.rate;
+					var el = rate;
+					/*sum > 0.0
+						? _.min(openPositionsResult.levels)
+						: _.max(openPositionsResult.levels);*/
+					fetchStopOrders(currencyPair, time, el || rate, function(orderStopResult) {
 							var sl = sum > 0.0
 								? orderStopResult.bid
 								: orderStopResult.ask;
-							var el = sum > 0.0
-								? (orderEntryResult.bid + openPositionsResult.bid) / 2.0
-								: (orderEntryResult.ask + openPositionsResult.ask) / 2.0;
 							var risk = el - sl;
 							var tp1 = el + risk;
 							var tp2 = sum < 0.0
-								? (orderEntryResult.bid + orderStopResult.bid) / 2.0
-								: (orderEntryResult.ask + orderStopResult.ask) / 2.0;
-							var reward = tp2 - el;
-							var ratio = reward / risk;
+								? orderStopResult.bid
+								: orderStopResult.ask;
 
 							console.log(
 								sum,
 								currencyPair,
-								'bullish:'+bullish,
 								'risk:'+(risk * 100.0 / openPositionsResult.rate),
-								'sl:'+sl, 'el:'+el, 'tp1:'+tp1, 'tp2:'+tp2,
-								'ratio:'+ratio
+								'sl:'+sl, 'el:'+el, 'rate:'+rate, 'tp1:'+tp1, 'tp2:'+tp2
+							);
+					/*
+						fetchStopOrders(currencyPair, time, orderEntryResult, function(orderStopResult) {
+							console.error('open positions:', openPositionsResult);
+							console.error('orders (default):', orderEntryResult);
+							console.error('orders (alt):', orderStopResult);
+							var el = openPositionsResult.rate;
+							var reward = tp2 - el;
+
+							console.log(
+								sum,
+								currencyPair,
 							);
 						});
+					*/
 					});
 				});
 				break;
@@ -270,8 +275,27 @@ function fetchEntryOrders(currencyPair, time, done) {
 		}
 
 		var rate = parseFloat(data.orderBook.price);
-		var sum = { bid: 0.0, ask: 0.0 };
-		var total = { bid: 0, ask: 0 };
+		var max = { bidPercent: 0.0, askPercent: 0.0 };
+		var levels = [];
+
+		_.each(_.reverse(_.sortBy(data.orderBook.buckets, 'price')), function(pricePoint) {
+			pricePoint = _.reduce(_.keys(pricePoint), function(acc, key) {
+				acc[key] = parseFloat(pricePoint[key]);
+
+				return acc;
+			}, {});
+
+			var distOrig = pricePoint.price - rate;
+			var dist = Math.abs(distOrig);
+			var net = pricePoint.price > rate
+				? pricePoint.shortCountPercent - pricePoint.longCountPercent
+				: pricePoint.longCountPercent - pricePoint.shortCountPercent;
+
+			if(distOrig < rate && net > max.bidPercent) {
+				max.bidPercent = net;
+				levels.push(pricePoint.price);
+			}
+		});
 
 		_.each(_.sortBy(data.orderBook.buckets, 'price'), function(pricePoint) {
 			pricePoint = _.reduce(_.keys(pricePoint), function(acc, key) {
@@ -283,37 +307,23 @@ function fetchEntryOrders(currencyPair, time, done) {
 			var distOrig = pricePoint.price - rate;
 			var dist = Math.abs(distOrig);
 			var net = pricePoint.price > rate
-				? pricePoint.shortCountPercent
-				: pricePoint.longCountPercent;
+				? pricePoint.shortCountPercent - pricePoint.longCountPercent
+				: pricePoint.longCountPercent - pricePoint.shortCountPercent;
 
-			if(dist < margin * rate) {
-				if(distOrig < 0.0) {
-					sum.bid = sum.bid + (net * dist);
-					total.bid = total.bid + Math.abs(net);
-				} else {
-					sum.ask = sum.ask + (net * dist);
-					total.ask = total.ask + Math.abs(net);
-				}
+			if(distOrig > rate && net > max.askPercent) {
+				max.askPercent = net;
+				levels.push(pricePoint.price);
 			}
 		});
 
-		var bid = rate - Math.abs(sum.bid / total.bid);
-		var ask = rate + Math.abs(sum.ask / total.ask);
-		var average = (bid + ask) / 2.0;
-		var bullish = (sum.bid / (Math.abs(sum.bid) + Math.abs(sum.ask))) > 0.5;
-
 		done({
 			instrument: instrument,
-			ask: _.isNaN(ask) ? 0.0 : ask,
-			rate: rate,
-			bid: _.isNaN(bid) ? 0.0 : bid,
-			average: average,
-			bullish: bullish
+			levels: _.sortedUniq(levels)
 		});
 	});
 }
 
-function fetchStopOrders(currencyPair, time, entryOrders, done) {
+function fetchStopOrders(currencyPair, time, entryLimit, done) {
 	var instrument = currencyPairMapping[currencyPair];
 	var requestUrl = 'https://api-fxpractice.oanda.com/v3/instruments/' + instrument + '/orderBook';
 
@@ -338,8 +348,9 @@ function fetchStopOrders(currencyPair, time, entryOrders, done) {
 		}
 
 		var rate = parseFloat(data.orderBook.price);
-		var sum = { bid: 0.0, ask: 0.0 };
-		var total = { bid: 0, ask: 0 };
+		var bid = entryLimit;
+		var ask = entryLimit;
+		var max = { bidPercent: 0.0, askPercent: 0.0 };
 
 		_.each(_.sortBy(data.orderBook.buckets, 'price'), function(pricePoint) {
 			pricePoint = _.reduce(_.keys(pricePoint), function(acc, key) {
@@ -348,35 +359,35 @@ function fetchStopOrders(currencyPair, time, entryOrders, done) {
 				return acc;
 			}, {});
 
-			var distOrig = pricePoint.price - rate;
+			var distOrig = pricePoint.price - entryLimit;
 			var dist = Math.abs(distOrig);
 			var net = pricePoint.price > rate
-				? pricePoint.shortCountPercent
-				: pricePoint.longCountPercent;
+				? pricePoint.shortCountPercent - pricePoint.longCountPercent
+				: pricePoint.longCountPercent - pricePoint.shortCountPercent;
 
-			if(dist < margin * rate && (pricePoint.price > entryOrders.ask || pricePoint.price < entryOrders.bid)) {
+			if(dist < target * entryLimit && (pricePoint.price < entryLimit || pricePoint.price > entryLimit)) {
 				if(distOrig < 0.0) {
-					sum.bid = sum.bid + (net * dist);
-					total.bid = total.bid + Math.abs(net);
+					if(net > max.bidPercent) {
+						max.bidPercent = net;
+						bid = pricePoint.price;
+					}
 				} else {
-					sum.ask = sum.ask + (net * dist);
-					total.ask = total.ask + Math.abs(net);
+					if(net > max.askPercent) {
+						max.askPercent = net;
+						ask = pricePoint.price;
+					}
 				}
 			}
 		});
 
-		var bid = rate - Math.abs(sum.bid / total.bid);
-		var ask = rate + Math.abs(sum.ask / total.ask);
 		var average = (bid + ask) / 2.0;
-		var bullish = (sum.bid / (Math.abs(sum.bid) + Math.abs(sum.ask))) > 0.5;
 
 		done({
 			instrument: instrument,
 			ask: _.isNaN(ask) ? 0.0 : ask,
 			rate: rate,
 			bid: _.isNaN(bid) ? 0.0 : bid,
-			average: average,
-			bullish: bullish
+			average: average
 		});
 	});
 }
@@ -406,8 +417,26 @@ function fetchOpenPositions(currencyPair, time, done) {
 		}
 
 		var rate = parseFloat(data.positionBook.price);
-		var sum = { bid: 0.0, ask: 0.0 };
-		var total = { bid: 0, ask: 0 };
+		var levels = [];
+		var max = { bidPercent: 0.0, askPercent: 0.0 };
+
+		_.each(_.reverse(_.sortBy(data.positionBook.buckets, 'price')), function(pricePoint) {
+			pricePoint = _.reduce(_.keys(pricePoint), function(acc, key) {
+				acc[key] = parseFloat(pricePoint[key]);
+
+				return acc;
+			}, {});
+
+			var d = Math.abs(pricePoint.price - rate);
+			var withinMargin = (d/rate <= margin);
+
+			if(pricePoint.shortCountPercent > max.askPercent) {
+				max.askPercent = pricePoint.shortCountPercent;
+				if(withinMargin) {
+					levels.push(pricePoint.price);
+				}
+			}
+		});
 
 		_.each(_.sortBy(data.positionBook.buckets, 'price'), function(pricePoint) {
 			pricePoint = _.reduce(_.keys(pricePoint), function(acc, key) {
@@ -417,34 +446,20 @@ function fetchOpenPositions(currencyPair, time, done) {
 			}, {});
 
 			var d = Math.abs(pricePoint.price - rate);
+			var withinMargin = (d/rate <= margin);
 
-			if(d/rate <= margin) {
-				if(pricePoint.longCountPercent) {
-					sum.ask = sum.ask + (pricePoint.longCountPercent * pricePoint.price);
-					total.ask = total.ask + pricePoint.longCountPercent;
-				}
-
-				if(pricePoint.shortCountPercent) {
-					//console.error(pricePoint);
-					sum.bid = sum.bid + (pricePoint.shortCountPercent * pricePoint.price);
-					total.bid = total.bid + pricePoint.shortCountPercent;
+			if(pricePoint.longCountPercent > max.bidPercent) {
+				max.bidPercent = pricePoint.longCountPercent;
+				if(withinMargin) {
+					levels.push(pricePoint.price);
 				}
 			}
 		});
 
-		var bid = sum.bid / total.bid;
-		var ask = sum.ask / total.ask;
-		var average = (bid + ask) / 2.0;
-		var bullish = average < rate;
-
-
 		done({
 			instrument: instrument,
-			ask: _.isNaN(ask) ? 0.0 : ask,
 			rate: rate,
-			bid: _.isNaN(bid) ? 0.0 : bid,
-			average: average,
-			bullish: bullish
+			levels: _.sortedUniq(levels)
 		});
 	});
 }
