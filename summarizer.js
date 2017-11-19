@@ -15,7 +15,7 @@ if(time && moment().isAfter(moment(time))) {
 } else {
 	time = '';
 }
-var margin = parseFloat(nconf.get('margin')) || 0.00125;
+var margin = parseFloat(nconf.get('margin')) || 0.005;
 var target = parseFloat(nconf.get('target')) || 0.0025;
 var ranked = nconf.get('ranked') !== 'false';
 
@@ -168,19 +168,16 @@ parser.on('finish', function(){
 						: _.max(openPositionsResult.levels);*/
 					fetchStopOrders(currencyPair, time, el || rate, function(orderStopResult) {
 							var sl = sum > 0.0
-								? orderStopResult.bid
-								: orderStopResult.ask;
+								? _.min(openPositionsResult.levels)
+								: _.max(openPositionsResult.levels);
 							var risk = el - sl;
-							var tp1 = el + risk;
-							var tp2 = sum < 0.0
-								? orderStopResult.bid
-								: orderStopResult.ask;
+							var tp = el + risk;
 
 							console.log(
 								sum,
 								currencyPair,
 								'risk:'+(risk * 100.0 / openPositionsResult.rate),
-								'sl:'+sl, 'el:'+el, 'rate:'+rate, 'tp1:'+tp1, 'tp2:'+tp2
+								'sl:'+sl, 'el:'+el, 'tp:'+tp
 							);
 					/*
 						fetchStopOrders(currencyPair, time, orderEntryResult, function(orderStopResult) {
