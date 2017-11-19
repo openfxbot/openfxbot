@@ -210,6 +210,7 @@ backtest:
 
 compile:
 	git fetch origin
+	rm -rf ./agents
 	mkdir -p ./agents
 	git checkout origin/eurusd
 	ls ./neurons | awk '{print "./neurons/" $$1, "./agents/eurusd-" $$1}' | xargs -n 2 cp
@@ -226,7 +227,6 @@ compile:
 	git checkout origin/usdcad
 	ls ./neurons | awk '{print "./neurons/" $$1, "./agents/usdcad-" $$1}' | xargs -n 2 cp
 	git checkout master
-	make filter DIR_AGENTS='./agents'
 	make report DIR_AGENTS='./agents'
 
 data:
@@ -276,3 +276,4 @@ update:
 	git commit -a -m 'fix: update data.js'
 	git checkout master
 	make archive
+	make compile
