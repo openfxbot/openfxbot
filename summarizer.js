@@ -162,10 +162,14 @@ parser.on('finish', function(){
 			case 'usdjpy':
 				fetchOpenPositions(currencyPair, time, function(openPositionsResult) {
 					var rate = openPositionsResult.rate;
-					var el = rate;
-					/*sum > 0.0
-						? _.min(openPositionsResult.levels)
-						: _.max(openPositionsResult.levels);*/
+					var filteredLevels = _.filter(openPositionsResult.levels, function(level) {
+						return sum > 0.0
+							? level < openPositionsResult.rate
+							: level > openPositionsResult.rate;
+					})
+					var el = sum > 0.0
+						? _.max(filteredLevels)
+						: _.min(filteredLevels);
 					fetchStopOrders(currencyPair, time, el || rate, function(orderStopResult) {
 							var sl = sum > 0.0
 								? _.min(openPositionsResult.levels)
@@ -177,7 +181,7 @@ parser.on('finish', function(){
 								sum,
 								currencyPair,
 								'risk:'+(risk * 100.0 / openPositionsResult.rate),
-								'sl:'+sl, 'el:'+el, 'tp:'+tp
+								'sl:'+sl, 'el:'+el, 'rate:'+rate, 'tp:'+tp
 							);
 					/*
 						fetchStopOrders(currencyPair, time, orderEntryResult, function(orderStopResult) {
