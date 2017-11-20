@@ -417,6 +417,9 @@ function fetchOpenPositions(currencyPair, time, done) {
 		var levels = [];
 		var max = { bidPercent: 0.0, askPercent: 0.0 };
 
+		var ask = rate;
+		var bid = rate;
+
 		_.each(_.reverse(_.sortBy(data.positionBook.buckets, 'price')), function(pricePoint) {
 			pricePoint = _.reduce(_.keys(pricePoint), function(acc, key) {
 				acc[key] = parseFloat(pricePoint[key]);
@@ -430,8 +433,11 @@ function fetchOpenPositions(currencyPair, time, done) {
 			if(pricePoint.shortCountPercent > max.askPercent) {
 				max.askPercent = pricePoint.shortCountPercent;
 				if(withinMargin) {
-					levels.push(pricePoint.price);
+					ask = pricePoint.price
 				}
+			} else if(max.askPercent > 0 && pricePoint.shortCountPercent < max.askPercent) {
+				max.askPercent = 0.0;
+				levels.push(ask);
 			}
 		});
 
@@ -448,7 +454,10 @@ function fetchOpenPositions(currencyPair, time, done) {
 			if(pricePoint.longCountPercent > max.bidPercent) {
 				max.bidPercent = pricePoint.longCountPercent;
 				if(withinMargin) {
-					levels.push(pricePoint.price);
+					bid = pricePoint.price
+				} else if(max.bidPercent > 0 && pricePoint.longCountPercent < max.bidPercent) {
+					max.bidPercent = 0.0;
+					levels.push(bid);
 				}
 			}
 		});
