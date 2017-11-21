@@ -170,34 +170,19 @@ parser.on('finish', function(){
 					var el = sum > 0.0
 						? _.max(filteredLevels)
 						: _.min(filteredLevels);
-					fetchStopOrders(currencyPair, time, el || rate, function(orderStopResult) {
-							var sl = sum > 0.0
-								? _.min(openPositionsResult.levels)
-								: _.max(openPositionsResult.levels);
-							var risk = el - sl;
-							var tp = el + risk;
+					var sl = sum > 0.0
+						? _.min(openPositionsResult.levels)
+						: _.max(openPositionsResult.levels);
+					var risk = el - sl;
+					var tp = el + risk;
 
-							console.log(
-								sum,
-								currencyPair,
-								'risk:'+(risk * 100.0 / openPositionsResult.rate),
-								'sl:'+sl, 'el:'+el, 'rate:'+rate, 'tp:'+tp
-							);
-					/*
-						fetchStopOrders(currencyPair, time, orderEntryResult, function(orderStopResult) {
-							console.error('open positions:', openPositionsResult);
-							console.error('orders (default):', orderEntryResult);
-							console.error('orders (alt):', orderStopResult);
-							var el = openPositionsResult.rate;
-							var reward = tp2 - el;
-
-							console.log(
-								sum,
-								currencyPair,
-							);
-						});
-					*/
-					});
+					console.log(
+						sum,
+						currencyPair,
+						'risk:'+(risk * 100.0 / openPositionsResult.rate),
+						'sl:'+sl, 'el:'+el, 'rate:'+rate, 'tp:'+tp
+						//JSON.stringify(openPositionsResult.levels.sort())
+					);
 				});
 				break;
 			default:
@@ -251,79 +236,7 @@ var currencyPairMapping = {
 	usdjpy: 'USD_JPY'
 };
 
-function fetchEntryOrders(currencyPair, time, done) {
-	var instrument = currencyPairMapping[currencyPair];
-	var requestUrl = 'https://api-fxpractice.oanda.com/v3/instruments/' + instrument + '/orderBook';
-
-	if(time) {
-		requestUrl = requestUrl + '?time=' + time;
-	}
-
-	var requestOpts = {
-		url: requestUrl,
-		gzip: true,
-		headers: {
-			'Authorization': 'Bearer ' + token
-		}
-	};
-
-	var results = {};
-
-	request(requestOpts, function(error, response, body) {
-		var data = JSON.parse(body);
-		if(error || _.has(data, 'errorMessage')) {
-			return console.error('error:', error || data.errorMessage, requestUrl);
-		}
-
-		var rate = parseFloat(data.orderBook.price);
-		var max = { bidPercent: 0.0, askPercent: 0.0 };
-		var levels = [];
-
-		_.each(_.reverse(_.sortBy(data.orderBook.buckets, 'price')), function(pricePoint) {
-			pricePoint = _.reduce(_.keys(pricePoint), function(acc, key) {
-				acc[key] = parseFloat(pricePoint[key]);
-
-				return acc;
-			}, {});
-
-			var distOrig = pricePoint.price - rate;
-			var dist = Math.abs(distOrig);
-			var net = pricePoint.price > rate
-				? pricePoint.shortCountPercent - pricePoint.longCountPercent
-				: pricePoint.longCountPercent - pricePoint.shortCountPercent;
-
-			if(distOrig < rate && net > max.bidPercent) {
-				max.bidPercent = net;
-				levels.push(pricePoint.price);
-			}
-		});
-
-		_.each(_.sortBy(data.orderBook.buckets, 'price'), function(pricePoint) {
-			pricePoint = _.reduce(_.keys(pricePoint), function(acc, key) {
-				acc[key] = parseFloat(pricePoint[key]);
-
-				return acc;
-			}, {});
-
-			var distOrig = pricePoint.price - rate;
-			var dist = Math.abs(distOrig);
-			var net = pricePoint.price > rate
-				? pricePoint.shortCountPercent - pricePoint.longCountPercent
-				: pricePoint.longCountPercent - pricePoint.shortCountPercent;
-
-			if(distOrig > rate && net > max.askPercent) {
-				max.askPercent = net;
-				levels.push(pricePoint.price);
-			}
-		});
-
-		done({
-			instrument: instrument,
-			levels: _.sortedUniq(levels)
-		});
-	});
-}
-
+/*
 function fetchStopOrders(currencyPair, time, entryLimit, done) {
 	var instrument = currencyPairMapping[currencyPair];
 	var requestUrl = 'https://api-fxpractice.oanda.com/v3/instruments/' + instrument + '/orderBook';
@@ -392,6 +305,7 @@ function fetchStopOrders(currencyPair, time, entryLimit, done) {
 		});
 	});
 }
+*/
 
 function fetchOpenPositions(currencyPair, time, done) {
 	var instrument = currencyPairMapping[currencyPair];
@@ -459,10 +373,10 @@ function fetchOpenPositions(currencyPair, time, done) {
 				max.bidPercent = pricePoint.longCountPercent;
 				if(withinMargin) {
 					bid = pricePoint.price
-				} else if(max.bidPercent > 0 && pricePoint.longCountPercent < max.bidPercent) {
-					max.bidPercent = 0.0;
-					levels.push(bid);
 				}
+			} else if(max.bidPercent > 0 && pricePoint.longCountPercent < max.bidPercent) {
+				max.bidPercent = 0.0;
+				levels.push(bid);
 			}
 		});
 
