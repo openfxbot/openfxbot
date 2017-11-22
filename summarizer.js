@@ -16,7 +16,7 @@ if(time && moment().isAfter(moment(time))) {
 	time = '';
 }
 var margin = parseFloat(nconf.get('margin')) || 0.005;
-var target = parseFloat(nconf.get('target')) || 0.0025;
+var target = parseFloat(nconf.get('target')) || 0.002;
 var ranked = nconf.get('ranked') !== 'false';
 
 var data = nconf.get('csv') || './report.csv';
@@ -162,26 +162,42 @@ parser.on('finish', function(){
 			case 'usdjpy':
 				fetchOpenPositions(currencyPair, time, function(openPositionsResult) {
 					var rate = openPositionsResult.rate;
-					var filteredLevels = _.filter(openPositionsResult.levels, function(level) {
-						return sum > 0.0
-							? level < openPositionsResult.rate
-							: level > openPositionsResult.rate;
-					})
+					var levels = sum > 0.0
+						? openPositionsResult.levels.bid
+						: openPositionsResult.levels.ask;
+
+					var filteredEntryLevels = _.filter(levels, function(level) {
+						var cutoff = sum > 0.0
+							? level < rate
+							: level > rate;
+						var withinMargin = (Math.abs(level - rate) / rate) < target;
+						return cutoff && withinMargin;
+					});
 					var el = sum > 0.0
-						? _.max(filteredLevels)
-						: _.min(filteredLevels);
+						? _.min(filteredEntryLevels)
+						: _.max(filteredEntryLevels);
+					el = el || rate;
+
+					var filteredExitLevels = _.filter(levels, function(level) {
+						return (Math.abs(level - el) / el) < margin;
+					});
 					var sl = sum > 0.0
-						? _.min(openPositionsResult.levels)
-						: _.max(openPositionsResult.levels);
-					var risk = el - sl;
-					var tp = el + risk;
+						? _.min(filteredExitLevels)
+						: _.max(filteredExitLevels);
+					sl = sl || el;
+
+					var risk = sum > 0.0
+						? el - sl
+						: sl - el;
+					var tp = el - risk;
 
 					console.log(
 						sum,
 						currencyPair,
 						'risk:'+(risk * 100.0 / openPositionsResult.rate),
-						'sl:'+sl, 'el:'+el, 'rate:'+rate, 'tp:'+tp
-						//JSON.stringify(openPositionsResult.levels.sort())
+						'sl:'+sl, 'el:'+el, 'rate:'+rate, 'tp:'+tp,
+						JSON.stringify((filteredEntryLevels || []).sort()),
+						JSON.stringify((filteredExitLevels || []).sort())
 					);
 				});
 				break;
@@ -332,7 +348,10 @@ function fetchOpenPositions(currencyPair, time, done) {
 		}
 
 		var rate = parseFloat(data.positionBook.price);
-		var levels = [];
+		var levels = {
+			ask: [],
+			bid: []
+		};
 		var max = { bidPercent: 0.0, askPercent: 0.0 };
 
 		var ask = rate;
@@ -345,17 +364,12 @@ function fetchOpenPositions(currencyPair, time, done) {
 				return acc;
 			}, {});
 
-			var d = Math.abs(pricePoint.price - rate);
-			var withinMargin = (d/rate <= margin);
-
 			if(pricePoint.shortCountPercent > max.askPercent) {
 				max.askPercent = pricePoint.shortCountPercent;
-				if(withinMargin) {
-					ask = pricePoint.price
-				}
-			} else if(max.askPercent > 0 && pricePoint.shortCountPercent < max.askPercent) {
+				ask = pricePoint.price
+			} else if(max.askPercent > 0.0) {
 				max.askPercent = 0.0;
-				levels.push(ask);
+				levels.ask.push(ask);
 			}
 		});
 
@@ -366,24 +380,22 @@ function fetchOpenPositions(currencyPair, time, done) {
 				return acc;
 			}, {});
 
-			var d = Math.abs(pricePoint.price - rate);
-			var withinMargin = (d/rate <= margin);
-
 			if(pricePoint.longCountPercent > max.bidPercent) {
 				max.bidPercent = pricePoint.longCountPercent;
-				if(withinMargin) {
-					bid = pricePoint.price
-				}
-			} else if(max.bidPercent > 0 && pricePoint.longCountPercent < max.bidPercent) {
+				bid = pricePoint.price
+			} else if(max.bidPercent > 0.0) {
 				max.bidPercent = 0.0;
-				levels.push(bid);
+				levels.bid.push(bid);
 			}
 		});
+
+		levels.bid = _.uniqBy(levels.bid.sort());
+		levels.ask = _.uniqBy(levels.ask.sort());
 
 		done({
 			instrument: instrument,
 			rate: rate,
-			levels: _.sortedUniq(levels)
+			levels: levels
 		});
 	});
 }
