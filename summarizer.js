@@ -145,64 +145,7 @@ parser.on('finish', function(){
 			? rankings[newPair.base] - rankings[newPair.other]
 			: wagers[currencyPair] * 100.0;
 
-		switch(currencyPair) {
-			case 'audjpy':
-			case 'audusd':
-			case 'euraud':
-			case 'eurchf':
-			case 'eurgbp':
-			case 'eurjpy':
-			case 'eurusd':
-			case 'gbpchf':
-			case 'gbpjpy':
-			case 'gbpusd':
-			case 'nzdusd':
-			case 'usdcad':
-			case 'usdchf':
-			case 'usdjpy':
-				fetchOpenPositions(currencyPair, time, function(openPositionsResult) {
-					var rate = openPositionsResult.rate;
-					var levels = sum > 0.0
-						? openPositionsResult.levels.bid
-						: openPositionsResult.levels.ask;
-
-					var filteredEntryLevels = _.filter(levels, function(level) {
-						var cutoff = sum > 0.0
-							? level < rate
-							: level > rate;
-						var withinMargin = (Math.abs(level - rate) / rate) < target;
-						return cutoff && withinMargin;
-					});
-					var el = sum > 0.0
-						? _.min(filteredEntryLevels)
-						: _.max(filteredEntryLevels);
-					el = el || rate;
-
-					var filteredExitLevels = _.filter(levels, function(level) {
-						return (Math.abs(level - el) / el) < margin;
-					});
-					var sl = sum > 0.0
-						? _.min(filteredExitLevels)
-						: _.max(filteredExitLevels);
-					sl = sl || el;
-
-					var risk = sum > 0.0
-						? el - sl
-						: sl - el;
-					var tp = el - risk;
-
-					console.log(
-						sum,
-						currencyPair,
-						'risk:'+(risk * 100.0 / openPositionsResult.rate),
-						'sl:'+sl, 'el:'+el, 'rate:'+rate, 'tp:'+tp,
-						JSON.stringify((filteredEntryLevels || []).sort()),
-						JSON.stringify((filteredExitLevels || []).sort())
-					);
-				});
-				break;
-			default:
-		};
+			console.log(sum, currencyPair)
 	});
 });
 
