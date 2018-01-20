@@ -104,7 +104,9 @@ var iterate = function(args){
 		})
 		.reduce(function(acc, modifiedCandle) {
 			var percentChange = modifiedCandle[0];
+			var percentExtremes  = modifiedCandle[2] - modifiedCandle[3];
 			var potentialProfit = Math.abs(percentChange);
+			var normalizedReward = potentialProfit / percentExtremes;
 			var bullish = percentChange > 0.0;
 
 			if(acc.previousAction !== null) {
@@ -121,7 +123,7 @@ var iterate = function(args){
 					: 0.0;
 
 				var reward = acc.previousAction < 2
-					? multiplier * potentialProfit
+					? multiplier * normalizedReward
 					: (-1.0) * marr;
 
 				if(++index < lastTestIndex) {
