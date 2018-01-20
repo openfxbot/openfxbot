@@ -123,11 +123,15 @@ var iterate = function(args){
 					: 0.0;
 
 				var reward = acc.previousAction < 2
-					? multiplier * normalizedReward
+					? multiplier * potentialProfit
+					: (-1.0) * marr;
+
+				var normalizedReward = acc.previousAction < 2
+					? multiplier * (potentialProfit / percentExtremes)
 					: (-1.0) * marr;
 
 				if(++index < lastTestIndex) {
-					agent.learn(reward);
+					agent.learn(normalizedReward);
 				} else {
 					if(acc.previousAction === 2) {decisions.hold++;}
 					else if(acc.previousAction === 1) {decisions.long++;}
