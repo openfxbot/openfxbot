@@ -6,7 +6,6 @@ var RL = require('./rl.js');
 var Rx = require('rx');
 var fs = require('fs');
 var stringify = require('csv-stringify');
-var stats = require('stats-lite');
 
 var nconf = require('nconf');
 nconf.argv();
@@ -27,9 +26,7 @@ var stream = Rx.Observable.from(data);
 var iterate = function(args){
 	var env = {};
 	var numStates = args.numStates || 26;
-	var candleSize = args.version == '1.0' ? 5 : 4;
-	var lastTestIndex = (dataSize - (2 * numStates + testSize));
-	env.getNumStates = function() { return numStates * candleSize }
+	env.getNumStates = function() { return numStates * 4; }
 	env.getMaxNumActions = function() { return 3; }
 
 	var spec = { gamma: args.gamma, epsilon: args.epsilon, alpha: args.alpha };
@@ -49,31 +46,6 @@ var iterate = function(args){
 	};
 
 	stream
-		.scan(function(candles, candle) {
-			candles.push(candle);
-			if(candles.length > args.numStates) {
-				candles = candles.slice(candles.length - args.numStates);
-			}
-			return candles;
-		}, [])
-		.filter(function(candles) {
-			return candles.length === args.numStates;
-		})
-		.map(function(candles) {
-			var closeData = _.map(candles, function(candle) {
-				return candle[3];
-			});
-
-			var lastCandle = candles[candles.length - 1];
-			var lastClose = lastCandle[3];
-			var mean = stats.mean(closeData);
-			var meanDistance = (lastClose / stats.mean(closeData)) - 1.0;
-
-			return args.version === '1.0'
-				? [lastCandle[0], lastCandle[1], lastCandle[2], lastCandle[3], meanDistance]
-				: lastCandle;
-
-		})
 		.map(function(ohlcCandle) {
 			var priceOpen = ohlcCandle[0];
 			var priceHigh = ohlcCandle[1];
@@ -85,20 +57,12 @@ var iterate = function(args){
 			var pivotPoint = (priceHigh + priceLow + priceClose) / 3.0;
 			var percentOpen = (priceClose / pivotPoint) - 1.0;
 
-			var modifiedCandle = args.version === '1.0'
-				? [
-					percentChange * args.sensitivity,
-					percentOpen * args.sensitivity,
-					percentHigh * args.sensitivity,
-					percentLow * args.sensitivity,
-					ohlcCandle[4]
-				]
-				: [
-					percentChange * args.sensitivity,
-					percentOpen * args.sensitivity,
-					percentHigh * args.sensitivity,
-					percentLow * args.sensitivity
-				];
+			var modifiedCandle = [
+				percentChange * args.sensitivity,
+				percentOpen * args.sensitivity,
+				percentHigh * args.sensitivity,
+				percentLow * args.sensitivity
+			];
 
 			return modifiedCandle;
 		})
@@ -106,7 +70,6 @@ var iterate = function(args){
 			var percentChange = modifiedCandle[0];
 			var percentExtremes  = modifiedCandle[2] - modifiedCandle[3];
 			var potentialProfit = Math.abs(percentChange);
-			var normalizedReward = potentialProfit / percentExtremes;
 			var bullish = percentChange > 0.0;
 
 			if(acc.previousAction !== null) {
@@ -129,6 +92,8 @@ var iterate = function(args){
 				var normalizedReward = acc.previousAction < 2
 					? multiplier * (potentialProfit / percentExtremes)
 					: (-1.0) * marr;
+
+				var lastTestIndex = (dataSize - (numStates + testSize));
 
 				if(++index < lastTestIndex) {
 					agent.learn(normalizedReward);
