@@ -5,7 +5,6 @@ var assert = require('assert');
 var RL = require('./rl.js');
 var Rx = require('rx');
 var stringify = require('csv-stringify');
-var stats = require('stats-lite');
 
 var nconf = require('nconf');
 nconf.argv();
@@ -24,9 +23,8 @@ var filePath = agentsDir + '/' + configFile;
 function report(args){
 	var env = {};
 	var numStates = args.numStates || 26;
-	var candleSize = args.version == '1.0' ? 5 : 4;
-	var lastTestIndex = (dataSize - (2 * numStates + querySize) + 1);
-	env.getNumStates = function() { return numStates * candleSize }
+	var lastTestIndex = (dataSize - (numStates + querySize));
+	env.getNumStates = function() { return numStates * 4; }
 	env.getMaxNumActions = function() { return 3; }
 
 	var spec = { gamma: args.gamma, epsilon: 0.0, alpha: 0.0 };
@@ -39,31 +37,6 @@ function report(args){
 	var index = 0;
 
 	Rx.Observable.from(data)
-		.scan(function(candles, candle) {
-			candles.push(candle);
-			if(candles.length > args.numStates) {
-				candles = candles.slice(candles.length - args.numStates);
-			}
-			return candles;
-		}, [])
-		.filter(function(candles) {
-			return candles.length === args.numStates;
-		})
-		.map(function(candles) {
-			var closeData = _.map(candles, function(candle) {
-				return candle[3];
-			});
-
-			var lastCandle = candles[candles.length - 1];
-			var lastClose = lastCandle[3];
-			var mean = stats.mean(closeData);
-			var meanDistance = (lastClose / stats.mean(closeData)) - 1.0;
-
-			return args.version === '1.0'
-				? [lastCandle[0], lastCandle[1], lastCandle[2], lastCandle[3], meanDistance]
-				: lastCandle;
-
-		})
 		.map(function(ohlcCandle) {
 			var priceOpen = ohlcCandle[0];
 			var priceHigh = ohlcCandle[1];
@@ -75,20 +48,12 @@ function report(args){
 			var pivotPoint = (priceHigh + priceLow + priceClose) / 3.0;
 			var percentOpen = (priceClose / pivotPoint) - 1.0;
 
-			var modifiedCandle = args.version === '1.0'
-				? [
-					percentChange * args.sensitivity,
-					percentOpen * args.sensitivity,
-					percentHigh * args.sensitivity,
-					percentLow * args.sensitivity,
-					ohlcCandle[4]
-				]
-				: [
-					percentChange * args.sensitivity,
-					percentOpen * args.sensitivity,
-					percentHigh * args.sensitivity,
-					percentLow * args.sensitivity
-				];
+			var modifiedCandle = [
+				percentChange * args.sensitivity,
+				percentOpen * args.sensitivity,
+				percentHigh * args.sensitivity,
+				percentLow * args.sensitivity
+			];
 
 			return modifiedCandle;
 		})
