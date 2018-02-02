@@ -88,7 +88,6 @@ parser.on('finish', function(){
 	var netWager;
 	var total;
 	var pair;
-	var multiplier;
 
 	// console.error('results:', JSON.stringify(results, null, '\t'));
 
@@ -118,8 +117,7 @@ parser.on('finish', function(){
 			total = total + results[currency][position]['wager'];
 		}
 
-		netWager =  results[currency]['long']['wager'] - results[currency]['short']['wager'];
-		multiplier = netWager > 0.0 ? 1.0 : -1.0;
+		netWager = (results[currency]['long']['wager'] + results[currency]['hold']['wager']) - (results[currency]['short']['wager'] + results[currency]['hold']['wager']);
 
 		pair = getPair(currency);
 
@@ -138,14 +136,8 @@ parser.on('finish', function(){
 		rankings[key] = 100.0 * (rankBase[key] || 0.0) / rankTotal[key];
 	});
 
-	_.each(_.keys(results), function (currencyPair) {
-		var newPair = getPair(currencyPair);
-
-		var sum = ranked
-			? rankings[newPair.base] - rankings[newPair.other]
-			: wagers[currencyPair] * 100.0;
-
-			console.log(sum, currencyPair)
+	_.each(_.keys(rankBase), function (currencyKey) {
+			console.log(rankBase[currencyKey], currencyKey)
 	});
 });
 
