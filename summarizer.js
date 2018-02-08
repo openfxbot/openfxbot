@@ -117,7 +117,7 @@ parser.on('finish', function(){
 			total = total + results[currency][position]['wager'];
 		}
 
-		netWager = (results[currency]['long']['wager'] + results[currency]['hold']['wager']) - (results[currency]['short']['wager'] + results[currency]['hold']['wager']);
+		netWager = results[currency]['long']['wager'] - results[currency]['short']['wager'];
 
 		pair = getPair(currency);
 
