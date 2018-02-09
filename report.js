@@ -1,28 +1,26 @@
 'use strict';
 
 var _ = require('lodash');
+var async = require('async');
 var assert = require('assert');
 var RL = require('./rl.js');
 var Rx = require('rx');
 var stringify = require('csv-stringify');
+var fs = require('fs');
 
 var nconf = require('nconf');
 nconf.argv();
 
-var data = require(nconf.get('data') || './data.js');
-var dataSize = data.length;
+var utils = require('./utils.js');
+
 var querySize = parseInt(nconf.get('query-size') || 1);
 
-var currency = nconf.get('currency');
-var configFile = nconf.get('config-file');
-assert.ok(configFile, '``--config-file` was not provided')
-
 var agentsDir = process.env.DIR_AGENTS || './neurons';
-var filePath = agentsDir + '/' + configFile;
 
-function report(args){
+function report(configFile, currency, data, args, done){
 	var env = {};
 	var numStates = args.numStates || 26;
+	var dataSize = data.length;
 	var lastTestIndex = (dataSize - (numStates + querySize));
 	env.getNumStates = function() { return numStates * 4; }
 	env.getMaxNumActions = function() { return 3; }
@@ -97,8 +95,62 @@ function report(args){
 			return acc
 		}, {candles: []})
 		.subscribeOnCompleted(function() {
-			console.error(configFile, '-', 'done');
+			console.error(configFile, '|', currency, '-', 'done');
+			setImmediate(done);
 		});
 }
 
-report(require(filePath));
+var cache = {};
+
+fs.readdir(agentsDir, function(err, files) {
+	async.eachSeries(files, function(file, doneFile) {
+		var filePath = agentsDir + '/' + file;
+		var configJson = require(filePath);
+
+		async.eachSeries([
+			'EURUSD',
+			'GBPUSD',
+			'NZDUSD',
+			'AUDUSD',
+			'USDCHF',
+			'USDCAD',
+			'USDJPY',
+			'EURGBP',
+			'EURAUD',
+			'EURNZD',
+			'EURCAD',
+			'EURCHF',
+			'EURJPY',
+			'GBPAUD',
+			'GBPNZD',
+			'GBPCAD',
+			'GBPCHF',
+			'GBPJPY',
+			'AUDNZD',
+			'AUDCAD',
+			'AUDCHF',
+			'AUDJPY',
+			'NZDCAD',
+			'NZDCHF',
+			'NZDJPY',
+			'CADCHF',
+			'CADJPY',
+			'CHFJPY'
+		], function(currency, doneCurrency) {
+			if(!cache[currency]) {
+				utils.download({
+					currency: currency,
+					periodLength: 18,
+					periodUnits: 'months'
+				}, function(err, data) {
+					cache[currency] = data;
+					report(file, currency, data, configJson, doneCurrency);
+				});
+			} else {
+				report(file, currency, cache[currency], configJson, doneCurrency);
+			}
+		}, doneFile);
+	}, function() {
+		console.error('DONE');
+	});
+});
