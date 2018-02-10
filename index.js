@@ -12,13 +12,13 @@ nconf.argv();
 
 var TRAVIS_JOB_NUMBER = process.env.TRAVIS_JOB_NUMBER;
 var data = require(nconf.get('data') || './data.js');
-var defaultTestSize = parseInt(process.env.DEFAULT_TEST_SIZE, 10) || 60;
 var dataSize = data.length;
-var testSize = parseInt(nconf.get('test-size'), 10) || defaultTestSize;
+var testSize = parseInt(nconf.get('test-size') || 52);
 
 var outputFile = nconf.get('output-file') || moment().format('YYYY-DDD-HH');
 var filePath = './neurons/' + outputFile + '.json';
 
+var marr = (parseFloat(nconf.get('marr')) || 0.03) / 52.0; // minimum annual rate of return / 52wks
 var maxTime = (parseInt(nconf.get('max-time'), 10) || 45) * 60 * 1000;
 
 var startTime = new Date();
@@ -87,11 +87,11 @@ var iterate = function(args){
 
 				var reward = acc.previousAction < 2
 					? multiplier * potentialProfit
-					: (-1.0) * potentialProfit;
+					: (-1.0) * marr;
 
 				var normalizedReward = acc.previousAction < 2
 					? multiplier * (potentialProfit / percentExtremes)
-					: (-1.0) * (potentialProfit / percentExtremes)
+					: (-1.0) * marr;
 
 				var lastTestIndex = (dataSize - (numStates + testSize));
 
@@ -217,7 +217,7 @@ try {
 	initArgs = require(filePath);
 } catch(e) {
 	initArgs = {
-		numStates: Math.floor(getRandom(minStates, defaultTestSize + 1)),
+		numStates: Math.floor(getRandom(minStates, 53)),
 		sensitivity: getRandom(minSensitivity, maxSensitivity),
 		alpha: getRandom(minAlpha, maxAlpha),
 		gamma: getRandom(minGamma, maxGamma),
