@@ -10,6 +10,7 @@ module.exports = {
 
 function download(options, done) {
 	var settings = _.defaultsDeep(options, {
+		timeScale: '1440', // 10080 for weeks
 		periodLength: 10,
 		periodUnits: 'years',
 		format: 'YYYY-MM-DD'
@@ -31,7 +32,9 @@ function download(options, done) {
 		formattedNow + 
 		'%2022:00&symbol=' +
 		settings.currency +
-		'&timeScale=10080&userTimeFormat=0&z=' +
+		'&timeScale=' +
+		settings.timeScale +
+		'&userTimeFormat=0&z=' +
 		Math.random();
 
 	request(requestUrl, function(error, response, body) {

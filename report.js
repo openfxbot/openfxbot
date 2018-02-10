@@ -19,7 +19,7 @@ var agentsDir = process.env.DIR_AGENTS || './neurons';
 
 function report(configFile, currency, data, args, done){
 	var env = {};
-	var numStates = args.numStates || 26;
+	var numStates = args.numStates;
 	var dataSize = data.length;
 	var lastTestIndex = (dataSize - (numStates + querySize));
 	env.getNumStates = function() { return numStates * 4; }
