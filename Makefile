@@ -246,7 +246,7 @@ update:
 reset:
 	git checkout $(CURRENCY)
 	git pull
-	-rm -rf ./neurons/*.js
+	-rm -rf ./neurons/*.json
 	-git add -A ./neurons
 	-git commit -m 'fix: reset'
 	echo '"File","Travis Job Id","Cycles","Wealth","Success","Decisions(JSON)"' > results.csv
