@@ -256,14 +256,12 @@ reset:
 	-git commit -m 'fix: reset'
 
 clean:
-	make reset CURRENCY=EURUSD
-	make reset CURRENCY=EURUSD
-	make reset CURRENCY=EURUSD
-	make reset CURRENCY=USDCHF
-	make reset CURRENCY=USDJPY
-	make reset CURRENCY=GBPUSD
-	make reset CURRENCY=AUDUSD
-	make reset CURRENCY=USDCAD
-	make reset CURRENCY=NZDUSD
+	make reset CURRENCY=eurusd
+	make reset CURRENCY=usdchf
+	make reset CURRENCY=usdjpy
+	make reset CURRENCY=gbpusd
+	make reset CURRENCY=audusd
+	make reset CURRENCY=usdcad
+	make reset CURRENCY=nzdusd
 	git checkout master
 	make push
