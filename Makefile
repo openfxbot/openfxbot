@@ -242,3 +242,28 @@ update:
 	git checkout master
 	make archive
 	make compile
+
+reset:
+	git checkout $(CURRENCY)
+	git pull
+	-rm -rf ./neurons/*.js
+	-git add -A ./neurons
+	-git commit -m 'fix: reset'
+	echo '"File","Travis Job Id","Cycles","Wealth","Success","Decisions(JSON)"' > results.csv
+	-git add results.csv
+	-rm -rf ./archives/*
+	-git add -A ./archives
+	-git commit -m 'fix: reset'
+
+clean:
+	make reset CURRENCY=EURUSD
+	make reset CURRENCY=EURUSD
+	make reset CURRENCY=EURUSD
+	make reset CURRENCY=USDCHF
+	make reset CURRENCY=USDJPY
+	make reset CURRENCY=GBPUSD
+	make reset CURRENCY=AUDUSD
+	make reset CURRENCY=USDCAD
+	make reset CURRENCY=NZDUSD
+	git checkout master
+	make push
