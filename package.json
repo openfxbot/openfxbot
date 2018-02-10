@@ -9,6 +9,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "async": "2.6.0",
     "csv-parse": "1.2.0",
     "csv-stringify": "1.0.4",
     "jquery": "3.1.1",
