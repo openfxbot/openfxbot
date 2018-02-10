@@ -10,36 +10,9 @@ neuron:
 	git commit -a -m 'test: new neuron'
 
 report:
-	cp report.js compiler.js
 	echo '"Currency","Position","Probability","Odds","Meets Criterion","File"' > report.csv
-	$(MAKE) data CURRENCY=EURUSD
-	$(MAKE) data CURRENCY=GBPUSD
-	$(MAKE) data CURRENCY=NZDUSD
-	$(MAKE) data CURRENCY=AUDUSD
-	$(MAKE) data CURRENCY=USDCHF
-	$(MAKE) data CURRENCY=USDCAD
-	$(MAKE) data CURRENCY=USDJPY
-	$(MAKE) data CURRENCY=EURGBP
-	$(MAKE) data CURRENCY=EURAUD
-	$(MAKE) data CURRENCY=EURNZD
-	$(MAKE) data CURRENCY=EURCAD
-	$(MAKE) data CURRENCY=EURCHF
-	$(MAKE) data CURRENCY=EURJPY
-	$(MAKE) data CURRENCY=GBPAUD
-	$(MAKE) data CURRENCY=GBPNZD
-	$(MAKE) data CURRENCY=GBPCAD
-	$(MAKE) data CURRENCY=GBPCHF
-	$(MAKE) data CURRENCY=GBPJPY
-	$(MAKE) data CURRENCY=AUDNZD
-	$(MAKE) data CURRENCY=AUDCAD
-	$(MAKE) data CURRENCY=AUDCHF
-	$(MAKE) data CURRENCY=AUDJPY
-	$(MAKE) data CURRENCY=NZDCAD
-	$(MAKE) data CURRENCY=NZDCHF
-	$(MAKE) data CURRENCY=NZDJPY
-	$(MAKE) data CURRENCY=CADCHF
-	$(MAKE) data CURRENCY=CADJPY
-	$(MAKE) data CURRENCY=CHFJPY
+	mkdir -p ./downloads
+	DIR_AGENTS=$(DIR_AGENTS) node report.js | tee -a report.csv
 	git checkout master
 	node summarizer.js --time=${REPORT_DATE} | sort -rn
 
@@ -229,14 +202,6 @@ compile:
 	git checkout master
 	make report DIR_AGENTS='./agents'
 
-data:
-	mkdir -p ./downloads
-
-	CURRENCY=${CURRENCY} node download.js > ./downloads/${CURRENCY}.js
-	ls $(DIR_AGENTS) | awk '{print "DIR_AGENTS=$(DIR_AGENTS) node compiler.js --data=./downloads/${CURRENCY}.js --currency=${CURRENCY} --config-file=" $$1}' > ./tmp.sh
-	chmod a+x ./tmp.sh
-	./tmp.sh | sort | tee -a report.csv
-
 filter:
 	ls $(DIR_AGENTS) | awk '{print "DIR_AGENTS=$(DIR_AGENTS) node score.js --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
@@ -277,3 +242,28 @@ update:
 	git checkout master
 	make archive
 	make compile
+
+reset:
+	git checkout $(CURRENCY)
+	git pull
+	-rm -rf ./neurons/*.js
+	-git add -A ./neurons
+	-git commit -m 'fix: reset'
+	echo '"File","Travis Job Id","Cycles","Wealth","Success","Decisions(JSON)"' > results.csv
+	-git add results.csv
+	-rm -rf ./archives/*
+	-git add -A ./archives
+	-git commit -m 'fix: reset'
+
+clean:
+	make reset CURRENCY=EURUSD
+	make reset CURRENCY=EURUSD
+	make reset CURRENCY=EURUSD
+	make reset CURRENCY=USDCHF
+	make reset CURRENCY=USDJPY
+	make reset CURRENCY=GBPUSD
+	make reset CURRENCY=AUDUSD
+	make reset CURRENCY=USDCAD
+	make reset CURRENCY=NZDUSD
+	git checkout master
+	make push
