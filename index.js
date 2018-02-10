@@ -87,11 +87,11 @@ var iterate = function(args){
 
 				var reward = acc.previousAction < 2
 					? multiplier * potentialProfit
-					: 0.0;
+					: (-1.0) * potentialProfit;
 
 				var normalizedReward = acc.previousAction < 2
 					? multiplier * (potentialProfit / percentExtremes)
-					: 0.0;
+					: (-1.0) * (potentialProfit / percentExtremes)
 
 				var lastTestIndex = (dataSize - (numStates + testSize));
 
