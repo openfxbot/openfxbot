@@ -139,6 +139,7 @@ fs.readdir(agentsDir, function(err, files) {
 		], function(currency, doneCurrency) {
 			if(!cache[currency]) {
 				utils.download({
+					endDate: process.env.REPORT_DATE,
 					currency: currency,
 					periodLength: 18,
 					periodUnits: 'months'
