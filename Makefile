@@ -12,7 +12,7 @@ neuron:
 report:
 	echo '"Currency","Position","Probability","Odds","Meets Criterion","File"' > report.csv
 	mkdir -p ./downloads
-	DIR_AGENTS=$(DIR_AGENTS) node report.js | tee -a report.csv
+	DIR_AGENTS=$(DIR_AGENTS) node report.js >> report.csv
 	git checkout master
 	node summarizer.js --time=${REPORT_DATE} | sort -rn
 
@@ -240,8 +240,9 @@ update:
 	CURRENCY=NZDUSD node download.js > ./data.js
 	git commit -a -m 'fix: update data.js'
 	git checkout master
-	make archive
 	make compile
+	make filter
+	make update
 
 reset:
 	git checkout $(CURRENCY)
