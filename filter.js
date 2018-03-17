@@ -13,7 +13,7 @@ var parser = require('csv-parse')();
 var results = {};
 var sum = 0.0;
 var count = 0;
-var twoWeeksAgo = moment().subtract(1, 'years');
+var cutoffDate = moment().subtract(1, 'years');
 
 // Use the writable stream api
 parser.on('readable', function(){
@@ -38,14 +38,15 @@ parser.on('readable', function(){
 parser.on('error', function(err){
   console.error(err.message);
 });
+
 parser.on('finish', function(){
 	var average = sum / count;
 
 	_.each(_.keys(results), function(filename) {
 		var lastUpdatedDate = _.get(require(filename), 'max.lastUpdatedDate');
-		var isNotValid = results[filename] < average ||
-			!lastUpdatedDate ||
-			moment(lastUpdatedDate).isBefore(twoWeeksAgo);
+		// var isNotValid = results[filename] < average ||
+		var isNotValid = !lastUpdatedDate ||
+			moment(lastUpdatedDate).isBefore(cutoffDate);
 
 		if(isNotValid) {
 			console.log(filename);
