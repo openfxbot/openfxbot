@@ -95,7 +95,6 @@ function report(configFile, currency, data, args, done){
 			return acc
 		}, {candles: []})
 		.subscribeOnCompleted(function() {
-			console.error(configFile, '|', currency, '-', 'done');
 			setImmediate(done);
 		});
 }
