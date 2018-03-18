@@ -200,14 +200,13 @@ compile:
 	git checkout origin/usdcad
 	ls ./neurons | awk '{print "./neurons/" $$1, "./agents/usdcad-" $$1}' | xargs -n 2 cp
 	git checkout master
-	make report DIR_AGENTS='./agents'
 
 filter:
 	ls $(DIR_AGENTS) | awk '{print "DIR_AGENTS=$(DIR_AGENTS) node score.js --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	mkdir -p ./tmp
 	echo "Score,Filename" > scores.csv
-	./tmp.sh | sort -n | tee scores.csv
+	./tmp.sh >> scores.csv
 	node filter.js | xargs rm
 
 update:
