@@ -13,7 +13,7 @@ var parser = require('csv-parse')();
 var results = {};
 var sum = 0.0;
 var count = 0;
-var cutoffDate = moment().subtract(1, 'years');
+var cutoffDate = moment().subtract(1, 'months');
 
 // Use the writable stream api
 parser.on('readable', function(){
