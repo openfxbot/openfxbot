@@ -121,8 +121,8 @@ parser.on('finish', function(){
 
 		pair = getPair(currency);
 
-		rankBase[pair.base] = (rankBase[pair.base] || 0.0) + (results[currency]['long']['wager'] / total);
-		rankBase[pair.other] = (rankBase[pair.other] || 0.0) + (results[currency]['short']['wager'] /total);
+		rankBase[pair.base] = (rankBase[pair.base] || 0.0) + (results[currency]['long']['wager']);
+		rankBase[pair.other] = (rankBase[pair.other] || 0.0) + (results[currency]['short']['wager']);
 		rankTotal[pair.base]++;
 		rankTotal[pair.other]++;
 
