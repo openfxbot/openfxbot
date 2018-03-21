@@ -121,8 +121,8 @@ parser.on('finish', function(){
 
 		pair = getPair(currency);
 
-		rankBase[pair.base] = (rankBase[pair.base] || 0.0) + netWager;
-		rankBase[pair.other] = (rankBase[pair.other] || 0.0) - netWager;
+		rankBase[pair.base] = (rankBase[pair.base] || 0.0) + (results[currency]['long']['wager'] / total);
+		rankBase[pair.other] = (rankBase[pair.other] || 0.0) + (results[currency]['short']['wager'] /total);
 		rankTotal[pair.base]++;
 		rankTotal[pair.other]++;
 
@@ -137,7 +137,7 @@ parser.on('finish', function(){
 	});
 
 	_.each(_.keys(rankBase), function (currencyKey) {
-			console.log(rankBase[currencyKey], currencyKey)
+			console.log(rankings[currencyKey], currencyKey)
 	});
 });
 
