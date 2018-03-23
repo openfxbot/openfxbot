@@ -241,7 +241,7 @@ update:
 	git checkout master
 	make compile
 	make filter
-	make update
+	make report
 
 reset:
 	git checkout $(CURRENCY)
