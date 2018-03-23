@@ -3,7 +3,6 @@
 var nconf = require('nconf');
 nconf.argv();
 
-
 var assert = require('assert');
 var configFile = nconf.get('config-file');
 assert.ok(configFile, '`--config-file` was not provided')
@@ -19,4 +18,6 @@ var chance = config.max.percentSuccess;
 var odds = config.max.odds;
 var wager = chance - ((1.0 - chance) / odds);
 
-console.log(wager + ',' + filePath);
+var lastUpdatedDate = config.max.lastUpdatedDate;
+
+console.log(wager + ',' + filePath + ',' + lastUpdatedDate);

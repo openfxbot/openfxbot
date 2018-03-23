@@ -23,7 +23,7 @@ archive:
 	ls ./neurons | awk '{print "DIR_AGENTS=./neurons node score.js --config-file=" $$1}' > ./tmp.sh
 	chmod a+x ./tmp.sh
 	mkdir -p ./tmp
-	echo "Score,Filename" > scores.csv
+	echo "Score,Filename,LastUpdatedDate" > scores.csv
 	./tmp.sh | sort -n | tee scores.csv
 	node filter.js | awk '{print $$1, "./archives/"}' | xargs -n 2 mv
 	git add -A ./neurons

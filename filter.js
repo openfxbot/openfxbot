@@ -10,7 +10,8 @@ var data = nconf.get('csv') || './scores.csv';
 // Create the parser
 var parser = require('csv-parse')();
 
-var results = {};
+var scores = {};
+var lastUpdatedDates = {};
 var sum = 0.0;
 var count = 0;
 var cutoffDate = moment().subtract(1, 'months');
@@ -28,10 +29,11 @@ parser.on('readable', function(){
 			sum = sum + score;
 			count++;
 
-			results[filename] = score;
+			scores[filename] = score;
 		} else {
 			console.log(filename);
 		}
+		lastUpdatedDates[filename] = record[2];
   }
 });
 // Catch any error
@@ -42,10 +44,9 @@ parser.on('error', function(err){
 parser.on('finish', function(){
 	var average = sum / count;
 
-	_.each(_.keys(results), function(filename) {
-		var configJson = require(filename);
-		var lastUpdatedDate = _.get(configJson, 'max.lastUpdatedDate');
-		var isNotValid = results[filename] < average ||
+	_.each(_.keys(scores), function(filename) {
+		var lastUpdatedDate = lastUpdatedDates[filename];
+		var isNotValid = scores[filename] < average ||
 			!lastUpdatedDate ||
 			moment(lastUpdatedDate).isBefore(cutoffDate);
 
