@@ -114,7 +114,7 @@ parser.on('finish', function(){
 				results[currency][position]['wager'] = 0.0;
 			}
 
-			total = total + results[currency][position]['wager'];
+			total = total + (position === 'hold' ? 0.0 : results[currency][position]['wager']);
 		}
 
 		netWager = results[currency]['long']['wager'] - results[currency]['short']['wager'];
@@ -123,8 +123,8 @@ parser.on('finish', function(){
 
 		rankBase[pair.base] = (rankBase[pair.base] || 0.0) + (results[currency]['long']['wager']);
 		rankBase[pair.other] = (rankBase[pair.other] || 0.0) + (results[currency]['short']['wager']);
-		rankTotal[pair.base]++;
-		rankTotal[pair.other]++;
+		rankTotal[pair.base] = rankTotal[pair.base] + total;
+		rankTotal[pair.other] = rankTotal[pair.other] + total;
 
 		// if(results[currency]['hold']['wager'] < results[currency][netWager > 0.0 ? 'long' : 'short']['wager'])
 		//wagers.push({currency: currency, wager: netWager});
