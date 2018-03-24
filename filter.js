@@ -46,8 +46,8 @@ parser.on('finish', function(){
 
 	_.each(_.keys(scores), function(filename) {
 		var lastUpdatedDate = lastUpdatedDates[filename];
-		var isNotValid = scores[filename] < average ||
-			!lastUpdatedDate ||
+		//var isNotValid = scores[filename] < average ||
+		var isNotValid = !lastUpdatedDate ||
 			moment(lastUpdatedDate).isBefore(cutoffDate);
 
 		if(isNotValid) {
