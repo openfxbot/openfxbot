@@ -1,7 +1,7 @@
 var _ = require('lodash');
 var utils = require('./utils.js');
 
-console.log(0.0000000000000000, 'USD');
+console.log(1.0000000000000000, 'USD');
 
 _.each([
 	'EURUSD',
