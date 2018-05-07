@@ -266,3 +266,6 @@ clean:
 	make reset CURRENCY=nzdusd
 	git checkout master
 	make push
+
+heatmap:
+	node heatmap.js | sort -n

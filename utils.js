@@ -12,6 +12,7 @@ function download(options, done) {
 	var settings = _.defaultsDeep(options, {
 		periodLength: 10,
 		periodUnits: 'years',
+		timeScale: '10080',
 		format: 'YYYY-MM-DD'
 	})
 
@@ -31,7 +32,9 @@ function download(options, done) {
 		formattedNow + 
 		'%2022:00&symbol=' +
 		settings.currency +
-		'&timeScale=10080&userTimeFormat=0&z=' +
+		'&timeScale=' +
+		settings.timeScale +
+		'&userTimeFormat=0&z=' +
 		Math.random();
 
 	request(requestUrl, function(error, response, body) {
