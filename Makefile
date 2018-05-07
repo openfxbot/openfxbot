@@ -268,4 +268,4 @@ clean:
 	make push
 
 heatmap:
-	node heatmap.js | sort -n
+	node heatmap.js | sort -rn

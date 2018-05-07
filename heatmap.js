@@ -28,8 +28,8 @@ _.each([
 			'USDCAD'
 		];
 		var percentChange = _.includes(invertPercentChange, currency)
-			? (openPrice/closePrice)
-			: (closePrice/openPrice);
+			? (closePrice/openPrice)
+			: (openPrice/closePrice);
 
 		console.log(percentChange, currency.replace('USD', ''));
 	});
