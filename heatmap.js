@@ -13,6 +13,7 @@ _.each([
 	'USDCHF'
 ], function(currency) {
 	utils.download({
+		endDate: process.env.REPORT_DATE,
 		currency: currency,
 		timeScale: '1440',
 		periodLength: 1,
