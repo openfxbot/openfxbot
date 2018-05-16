@@ -269,3 +269,6 @@ clean:
 
 heatmap:
 	node heatmap.js | sort -rn
+
+pivot:
+	CURRENCY=$(CURRENCY) node pivot.js
