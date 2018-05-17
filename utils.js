@@ -13,6 +13,7 @@ function download(options, done) {
 		periodLength: 10,
 		periodUnits: 'years',
 		timeScale: '10080',
+		endHour: '22',
 		format: 'YYYY-MM-DD'
 	})
 
@@ -23,14 +24,19 @@ function download(options, done) {
 		: moment();
 	var past = moment(now.toDate()).subtract(settings.periodLength, settings.periodUnits);
 
+	var endHour = settings.endHour;
 	var formattedNow = now.format(settings.format);
 	var formattedPast = past.format(settings.format);
 
 	var requestUrl = 'https://www.myfxbook.com/getHistoricalDataByDate.json?&start=' +
 		formattedPast +
-		'%2022:00&end=' +
+		'%20' +
+		endHour +
+		':00&end=' +
 		formattedNow + 
-		'%2022:00&symbol=' +
+		'%20' +
+		endHour +
+		':00&symbol=' +
 		settings.currency +
 		'&timeScale=' +
 		settings.timeScale +

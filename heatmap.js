@@ -14,8 +14,9 @@ _.each([
 ], function(currency) {
 	utils.download({
 		endDate: process.env.REPORT_DATE,
+		endHour: process.env.REPORT_HOUR,
 		currency: currency,
-		timeScale: '1440',
+		timeScale: '60',
 		periodLength: 1,
 		periodUnits: 'week'
 	}, function(err, rows) {
