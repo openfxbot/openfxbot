@@ -20,9 +20,9 @@ _.each([
 		periodUnits: 'week'
 	}, function(err, rows) {
 		var closePrice = rows[0][3]
-		var openPrice = rows[0][3]
+		var openPrice = rows[0][1]
 		_.each(rows, function(row) {
-			openPrice = row[3]
+			closePrice = row[3]
 		});
 
 		var invertPercentChange = [
@@ -31,8 +31,8 @@ _.each([
 			'USDCAD'
 		];
 		var percentChange = _.includes(invertPercentChange, currency)
-			? (closePrice/openPrice)
-			: (openPrice/closePrice);
+			? (openPrice/closePrice)
+			: (closePrice/openPrice);
 
 		console.log(percentChange, currency.replace('USD', ''));
 	});
