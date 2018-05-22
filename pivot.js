@@ -7,7 +7,7 @@ assert.ok(process.env.CURRENCY, 'CURRENCY was not provided');
 
 utils.download({
 	endDate: process.env.REPORT_DATE,
-	endHour: process.env.REPORT_HOUR || '17',
+	endHour: process.env.REPORT_HOUR || '21',
 	currency: process.env.CURRENCY,
 	timeScale: '60',
 	periodLength: 1,
