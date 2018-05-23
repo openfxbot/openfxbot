@@ -21,7 +21,7 @@ _.each([
 		periodUnits: 'week'
 	}, function(err, rows) {
 		var closePrice = rows[0][3]
-		var openPrice = rows[0][1]
+		var openPrice = rows[0][0]
 		_.each(rows, function(row) {
 			closePrice = row[3]
 		});
